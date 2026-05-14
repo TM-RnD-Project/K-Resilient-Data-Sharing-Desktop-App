@@ -1,8 +1,19 @@
-use crate::system::state::{APP_STATE, SharedPayload, StoredData};
+use crate::system::state::{
+    APP_STATE,
+    SharedPayload,
+    StoredData,
+    SearchScheme,
+    SearchIndex,
+};
 use crate::system::utils::id_to_bytes;
 use crate::system::utils::keyword_hash;
 
-use crate::kr_ibe::{main as kribe_core, ciphertext::Ciphertext as IbeCiphertext};
+use crate::kr_ibe::{
+    main as kribe_core,
+    ciphertext::Ciphertext as IbeCiphertext,
+};
+
+use crate::kr_peks::main as krpeks_core;
 use crate::kr_paeks::main as krpaeks_core;
 
 pub fn upload(
@@ -10,6 +21,7 @@ pub fn upload(
     receiver: &str,
     msg: &str,
     keyword: &str,
+    scheme: &str,
     payload_type: &str,
     file_name: Option<String>,
     mime_type: Option<String>,
@@ -30,24 +42,10 @@ pub fn upload(
         .as_ref()
         .ok_or("IBE params not initialised.")?;
 
-    let paeks_params = state
-        .paeks_params
-        .as_ref()
-        .ok_or("PAEKS params not initialised.")?;
-
-    let sender_paeks = state
-        .paeks_users
-        .get(sender)
-        .ok_or("Sender PAEKS keypair missing.")?;
-
-    let receiver_paeks = state
-        .paeks_users
-        .get(receiver)
-        .ok_or("Receiver PAEKS keypair missing.")?;
-
     let mut ibe_ct = IbeCiphertext::new();
 
     let receiver_bytes = id_to_bytes(receiver);
+
     let payload = match payload_type {
         "text" => SharedPayload {
             payload_type: "text".to_string(),
@@ -74,6 +72,7 @@ pub fn upload(
 
     let payload_json = serde_json::to_string(&payload)
         .map_err(|error| format!("Failed to serialise upload payload: {error}"))?;
+
     let msg_bytes = payload_json.as_bytes().to_vec();
 
     kribe_core::encryption(
@@ -83,18 +82,69 @@ pub fn upload(
         &msg_bytes,
     );
 
-    let keyword_big = krpaeks_core::hash_to_big(keyword);
+    let selected_scheme = match scheme.to_lowercase().as_str() {
+        "peks" => SearchScheme::Peks,
+        "paeks" => SearchScheme::Paeks,
+        _ => return Err("Invalid search scheme. Use 'peks' or 'paeks'.".to_string()),
+    };
 
-    let paeks_index = krpaeks_core::encrypt(
-        paeks_params,
-        &receiver_paeks.pk,
-        &sender_paeks.sk,
-        &keyword_big,
-    );
+    let search_index = match selected_scheme {
+        SearchScheme::Peks => {
+            let peks_params = state
+                .peks_params
+                .as_ref()
+                .ok_or("PEKS params not initialised.")?;
+
+            let peks_pk = state
+                .peks_pk
+                .as_ref()
+                .ok_or("PEKS public key missing.")?;
+
+            let keyword_bytes = keyword.as_bytes().to_vec();
+
+            let index = krpeks_core::peks(
+                peks_params,
+                peks_pk,
+                &keyword_bytes,
+            )
+            .ok_or("KR-PEKS encryption failed.")?;
+
+            SearchIndex::Peks(index)
+        }
+
+        SearchScheme::Paeks => {
+            let paeks_params = state
+                .paeks_params
+                .as_ref()
+                .ok_or("PAEKS params not initialised.")?;
+
+            let sender_paeks = state
+                .paeks_users
+                .get(sender)
+                .ok_or("Sender PAEKS keypair missing.")?;
+
+            let receiver_paeks = state
+                .paeks_users
+                .get(receiver)
+                .ok_or("Receiver PAEKS keypair missing.")?;
+
+            let keyword_big = krpaeks_core::hash_to_big(keyword);
+
+            let index = krpaeks_core::encrypt(
+                paeks_params,
+                &receiver_paeks.pk,
+                &sender_paeks.sk,
+                &keyword_big,
+            );
+
+            SearchIndex::Paeks(index)
+        }
+    };
 
     state.database.push(StoredData {
         ct: ibe_ct,
-        paeks_index,
+        search_index,
+        search_scheme: selected_scheme,
         sender: sender.to_string(),
         owner: receiver.to_string(),
         keyword_hash: keyword_hash(keyword),

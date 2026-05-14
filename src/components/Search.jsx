@@ -3,6 +3,7 @@ import { invoke } from "@tauri-apps/api/core";
 
 export default function Search({ user }) {
   const [keyword, setKeyword] = useState("");
+  const [scheme, setScheme] = useState("peks");
   const [results, setResults] = useState([]);
   const [downloadedMessages, setDownloadedMessages] = useState([]);
   const [status, setStatus] = useState("");
@@ -21,11 +22,12 @@ export default function Search({ user }) {
       setResults([]);
       setDownloadedMessages([]);
       setHasSearched(true);
-      setStatus("Searching encrypted data...");
+      setStatus(`Searching encrypted data using ${scheme.toUpperCase()}...`);
 
       const indexes = await invoke("search_keyword", {
         user,
         keyword,
+        scheme,
       });
 
       setResults(indexes);
@@ -70,7 +72,12 @@ export default function Search({ user }) {
 
   return (
     <div className="section-card">
-      <h2>Authenticated Search over Encrypted Data</h2>
+      <h2>Search over Encrypted Data</h2>
+
+      <select value={scheme} onChange={(e) => setScheme(e.target.value)}>
+        <option value="peks">KR-PEKS</option>
+        <option value="paeks">KR-PAEKS</option>
+      </select>
 
       <input
         type="text"

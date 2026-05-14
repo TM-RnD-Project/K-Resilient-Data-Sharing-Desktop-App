@@ -31,6 +31,7 @@ fn upload_file(
     receiver: String,
     msg: String,
     keyword: String,
+    scheme: String,
     payload_type: String,
     file_name: Option<String>,
     mime_type: Option<String>,
@@ -41,6 +42,7 @@ fn upload_file(
         &receiver,
         &msg,
         &keyword,
+        &scheme,
         &payload_type,
         file_name,
         mime_type,
@@ -49,8 +51,12 @@ fn upload_file(
 }
 
 #[tauri::command]
-fn search_keyword(user: String, keyword: String) -> Result<Vec<usize>, String> {
-    search::search(&user, &keyword)
+fn search_keyword(
+    user: String,
+    keyword: String,
+    scheme: String,
+) -> Result<Vec<usize>, String> {
+    search::search(&user, &keyword, &scheme)
 }
 
 #[tauri::command]
@@ -76,33 +82,33 @@ fn login_verify(id: String, s1: String, s2: String) -> Result<bool, String> {
 fn main() {
     tauri::Builder::default()
         .invoke_handler(tauri::generate_handler![
-             // KR-IBE
-             kr_ibe_setup,
-             kr_ibe_extract,
-             kr_ibe_encrypt,
-             kr_ibe_decrypt,
- 
-             // KR-IBI
-             kr_ibi_setup,
-             kr_ibi_extract,
-             kr_ibi_sign,
-             kr_ibi_verify,
- 
-             // KR-PEKS
-             kr_peks_setup,
-             kr_peks_keygen,
-             kr_peks_encrypt,
-             kr_peks_trapdoor,
-             kr_peks_test,
- 
-             // KR-PAEKS
-             kr_paeks_setup,
-             kr_paeks_keygen,
-             kr_paeks_encrypt,
-             kr_paeks_trapdoor,
-             kr_paeks_test,
+            // KR-IBE
+            kr_ibe_setup,
+            kr_ibe_extract,
+            kr_ibe_encrypt,
+            kr_ibe_decrypt,
 
-             //system
+            // KR-IBI
+            kr_ibi_setup,
+            kr_ibi_extract,
+            kr_ibi_sign,
+            kr_ibi_verify,
+
+            // KR-PEKS
+            kr_peks_setup,
+            kr_peks_keygen,
+            kr_peks_encrypt,
+            kr_peks_trapdoor,
+            kr_peks_test,
+
+            // KR-PAEKS
+            kr_paeks_setup,
+            kr_paeks_keygen,
+            kr_paeks_encrypt,
+            kr_paeks_trapdoor,
+            kr_paeks_test,
+
+            // System
             setup_all,
             register,
             upload_file,

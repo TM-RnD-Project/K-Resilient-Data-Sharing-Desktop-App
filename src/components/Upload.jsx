@@ -5,6 +5,7 @@ export default function Upload({ user }) {
   const [receiver, setReceiver] = useState("");
   const [message, setMessage] = useState("");
   const [keyword, setKeyword] = useState("");
+  const [scheme, setScheme] = useState("peks");
   const [payloadType, setPayloadType] = useState("text");
   const [selectedFile, setSelectedFile] = useState(null);
   const [status, setStatus] = useState("");
@@ -39,9 +40,11 @@ export default function Upload({ user }) {
     }
 
     try {
-      setStatus("Encrypting and uploading...");
+      setStatus(`Encrypting and uploading using ${scheme.toUpperCase()}...`);
+
       const contentBase64 =
         payloadType === "text" ? null : await readFileAsBase64(selectedFile);
+
       const effectivePayloadType =
         payloadType === "file" && selectedFile?.type.startsWith("image/")
           ? "image"
@@ -52,6 +55,7 @@ export default function Upload({ user }) {
         receiver,
         msg: message,
         keyword,
+        scheme,
         payloadType: effectivePayloadType,
         fileName: selectedFile?.name ?? null,
         mimeType: selectedFile?.type || null,
@@ -80,6 +84,12 @@ export default function Upload({ user }) {
         onChange={(e) => setReceiver(e.target.value)}
       />
 
+      <label>Search Scheme</label>
+      <select value={scheme} onChange={(e) => setScheme(e.target.value)}>
+        <option value="peks">KR-PEKS</option>
+        <option value="paeks">KR-PAEKS</option>
+      </select>
+
       <div className="mode-row">
         <button
           type="button"
@@ -91,6 +101,7 @@ export default function Upload({ user }) {
         >
           Text
         </button>
+
         <button
           type="button"
           className={payloadType === "file" ? "active-mode" : "secondary-button"}
@@ -112,11 +123,13 @@ export default function Upload({ user }) {
             type="file"
             onChange={(e) => setSelectedFile(e.target.files?.[0] ?? null)}
           />
+
           <textarea
             placeholder="Optional note"
             value={message}
             onChange={(e) => setMessage(e.target.value)}
           />
+
           {selectedFile && (
             <p className="file-meta">
               Selected: {selectedFile.name} ({Math.ceil(selectedFile.size / 1024)} KB)

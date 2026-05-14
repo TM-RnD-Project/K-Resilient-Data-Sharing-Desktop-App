@@ -14,6 +14,13 @@ use crate::kr_ibe::{
 
 use crate::kr_ibi::params::Params as IbiParams;
 
+use crate::kr_peks::{
+    params::Params as PeksParams,
+    public_key::PublicKey as PeksPublicKey,
+    private_key::PrivateKey as PeksPrivateKey,
+    ciphertext::Ciphertext as PeksCiphertext,
+};
+
 use crate::kr_paeks::{
     params::Params as PaeksParams,
     public_key::PublicKey as PaeksPublicKey,
@@ -35,9 +42,22 @@ pub struct PaeksKeyPair {
 }
 
 #[derive(Clone)]
+pub enum SearchScheme {
+    Peks,
+    Paeks,
+}
+
+#[derive(Clone)]
+pub enum SearchIndex {
+    Peks(PeksCiphertext),
+    Paeks(PaeksCiphertext),
+}
+
+#[derive(Clone)]
 pub struct StoredData {
     pub ct: IbeCiphertext,
-    pub paeks_index: PaeksCiphertext,
+    pub search_index: SearchIndex,
+    pub search_scheme: SearchScheme,
     pub sender: String,
     pub owner: String,
     pub keyword_hash: String,
@@ -56,10 +76,18 @@ pub struct SharedPayload {
 pub struct AppState {
     pub ibe_params: Option<IbeParams>,
     pub ibi_params: Option<IbiParams>,
-    pub paeks_params: Option<PaeksParams>,
 
-    pub users: HashMap<String, IbePrivateKey>,
+    // KR-PEKS
+    pub peks_params: Option<PeksParams>,
+    pub peks_pk: Option<PeksPublicKey>,
+    pub peks_sk: Option<PeksPrivateKey>,
+
+    // KR-PAEKS
+    pub paeks_params: Option<PaeksParams>,
     pub paeks_users: HashMap<String, PaeksKeyPair>,
+
+    // KR-IBE user private keys
+    pub users: HashMap<String, IbePrivateKey>,
 
     pub database: Vec<StoredData>,
 
@@ -71,10 +99,15 @@ pub static APP_STATE: Lazy<Mutex<AppState>> = Lazy::new(|| {
     Mutex::new(AppState {
         ibe_params: None,
         ibi_params: None,
+
+        peks_params: None,
+        peks_pk: None,
+        peks_sk: None,
+
         paeks_params: None,
+        paeks_users: HashMap::new(),
 
         users: HashMap::new(),
-        paeks_users: HashMap::new(),
 
         database: Vec::new(),
 
