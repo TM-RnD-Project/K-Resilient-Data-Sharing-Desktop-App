@@ -1,8 +1,8 @@
-use crate::system::state::{APP_STATE, SearchIndex, SearchScheme};
+use crate::system::state::{SearchIndex, SearchScheme, APP_STATE};
 use crate::system::utils::keyword_hash;
 
-use crate::kr_peks::main as krpeks_core;
 use crate::kr_paeks::main as krpaeks_core;
+use crate::kr_peks::main as krpeks_core;
 
 pub fn search(user: &str, keyword: &str, scheme: &str) -> Result<Vec<usize>, String> {
     let state = APP_STATE.lock().map_err(|_| "State lock failed")?;
@@ -27,18 +27,11 @@ pub fn search(user: &str, keyword: &str, scheme: &str) -> Result<Vec<usize>, Str
                 .as_ref()
                 .ok_or("PEKS params not initialised.")?;
 
-            let peks_sk = state
-                .peks_sk
-                .as_ref()
-                .ok_or("PEKS private key missing.")?;
+            let peks_sk = state.peks_sk.as_ref().ok_or("PEKS private key missing.")?;
 
             let keyword_bytes = keyword.as_bytes().to_vec();
 
-            let trapdoor = krpeks_core::trapdoor(
-                peks_params,
-                peks_sk,
-                &keyword_bytes,
-            );
+            let trapdoor = krpeks_core::trapdoor(peks_params, peks_sk, &keyword_bytes);
 
             for (index, data) in state.database.iter().enumerate() {
                 if data.owner != user {

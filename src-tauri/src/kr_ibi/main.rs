@@ -238,7 +238,7 @@ pub fn big_to_hex(b: &big::BIG) -> String {
 pub fn hex_to_big(hex: &str) -> big::BIG {
     let mut bytes = Vec::new();
     for i in (0..hex.len()).step_by(2) {
-        let byte_str = &hex[i..i+2];
+        let byte_str = &hex[i..i + 2];
         let byte = u8::from_str_radix(byte_str, 16).unwrap_or(0);
         bytes.push(byte);
     }

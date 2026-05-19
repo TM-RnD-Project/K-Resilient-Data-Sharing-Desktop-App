@@ -1,32 +1,32 @@
 #![allow(non_snake_case)]
 
+use super::ciphertext::Ciphertext;
+use super::lagrange::Lagrange;
 use super::params::Params;
+use super::polynomial;
 use super::private_key::PrivateKey;
 use super::public_key::PublicKey;
-use super::ciphertext::Ciphertext;
 use super::trapdoor::Trapdoor;
-use super::lagrange::Lagrange;
-use super::polynomial;
 
 extern crate mcore;
 
 use mcore::ed25519::big;
+use mcore::ed25519::ecdh;
 use mcore::ed25519::ecp;
 use mcore::rand::RAND;
-use mcore::ed25519::ecdh;
 use polynomial::Polynomial;
-use std::time::Instant;
 use rand::RngCore;
+use std::time::Instant;
 
-use mysql::*;
+use log::error;
 use mysql::prelude::*;
-use std::error::Error;
-use serde_json::json;
+use mysql::*;
+use rayon::prelude::*;
 use serde_cbor;
-use log::{error};
+use serde_json::json;
+use std::error::Error;
 use std::sync::atomic::{AtomicU64, Ordering};
 use std::sync::{Arc, Mutex};
-use rayon::prelude::*;
 
 /// Generates a random seed for RNG
 pub fn gen_seed() -> RAND {
@@ -39,8 +39,7 @@ pub fn gen_seed() -> RAND {
 }
 
 /// KR-PAEKS Setup: Generates system parameters and the master secret key.
-pub fn setup(params: &mut Params, k: usize){
-
+pub fn setup(params: &mut Params, k: usize) {
     let mut rng = gen_seed();
     let order = big::BIG::new_ints(&mcore::ed25519::rom::CURVE_ORDER);
     let msk = big::BIG::randomnum(&order, &mut rng);
@@ -48,12 +47,12 @@ pub fn setup(params: &mut Params, k: usize){
     let g2 = g1.mul(&msk);
 
     //validate g1 and g2
-    if is_valid(&g1) !=0 {
+    if is_valid(&g1) != 0 {
         println!("g1 is invalid! Abort!");
         std::process::abort();
     }
 
-    if is_valid(&g2) !=0 {
+    if is_valid(&g2) != 0 {
         println!("g2 is invalid! Abort!");
         std::process::abort();
     }
@@ -291,9 +290,8 @@ pub fn test(ciphertext: &Ciphertext, trapdoor: &Trapdoor) -> bool {
     lhs.equals(&rhs)
 }
 
-
 /// Main function: Runs the full KR-PAEKS scheme
-fn main(){
+fn main() {
     let k = 20;
 
     let keyword_str = "secure";
@@ -337,13 +335,13 @@ fn main(){
 
     // Encrypt
     let ciphertext_start = Instant::now();
-    let ciphertext=encrypt(&params, &receiver_pk, &sender_sk, &keyword);
+    let ciphertext = encrypt(&params, &receiver_pk, &sender_sk, &keyword);
     let ciphertext_time = ciphertext_start.elapsed();
     ciphertext.print();
 
     // Generate Trapdoor
     let trapdoor_start = Instant::now();
-    let trapdoor1=trapdoor(&params, &sender_pk, &receiver_sk, &keyword);
+    let trapdoor1 = trapdoor(&params, &sender_pk, &receiver_sk, &keyword);
     let trapdoor_time = trapdoor_start.elapsed();
     trapdoor1.print();
 
@@ -405,7 +403,7 @@ fn hash_to_big_array(keywords: &[String]) -> big::BIG {
     for keyword in keywords {
         combined_str.push_str(keyword);
     }
-    
+
     use mcore::sha3::{SHA3, SHAKE256};
 
     let mut hasher = SHA3::new(SHAKE256);
@@ -418,12 +416,11 @@ fn hash_to_big_array(keywords: &[String]) -> big::BIG {
 }
 
 fn is_valid(p: &ecp::ECP) -> isize {
-
-    let mut bytes = vec![0; big::MODBYTES+1];
+    let mut bytes = vec![0; big::MODBYTES + 1];
     p.tobytes(&mut bytes, true);
 
     let result = ecdh::public_key_validate(&bytes);
-    if result !=0 {
+    if result != 0 {
         return result;
     }
     0
@@ -527,7 +524,7 @@ fn is_valid(p: &ecp::ECP) -> isize {
 //                 // Serialize ciphertext using CBOR and encode it in base64
 //                 let string_cipher = serde_cbor::to_vec(&ciphertext).ok()?;
 //                 let encoded_cipher = base64::encode(&string_cipher);
-                
+
 //                 // Return the result as a tuple
 //                 return Some((encoded_cipher, date.clone(), to.clone(), *id));
 //             }

@@ -1,9 +1,9 @@
 use tauri::command;
 
-use super::params::Params;
 use super::main as kribi_core;
-use std::sync::Mutex;
+use super::params::Params;
 use once_cell::sync::Lazy;
+use std::sync::Mutex;
 use std::time::Instant;
 
 static PARAMS: Lazy<Mutex<Option<Params>>> = Lazy::new(|| Mutex::new(None));
@@ -33,7 +33,10 @@ pub fn kr_ibi_setup(k: usize) -> String {
     let mut output = String::new();
     output.push_str("✅ KR-IBI Setup Complete!\n\n");
     output.push_str(&PARAMS.lock().unwrap().as_ref().unwrap().format_full());
-    output.push_str(&format!("\n🔵 Setup Time: {}\n", format_runtime(duration.as_secs_f64())));
+    output.push_str(&format!(
+        "\n🔵 Setup Time: {}\n",
+        format_runtime(duration.as_secs_f64())
+    ));
 
     output
 }

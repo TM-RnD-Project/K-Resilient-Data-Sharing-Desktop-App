@@ -20,11 +20,11 @@ impl Params {
     }
 
     pub fn new_params(k: &usize, order: &big::BIG, g1: &ecp::ECP, g2: &ecp::ECP) -> Self {
-        Params { 
-            k: *k, 
-            order: *order, 
-            g1: g1.clone(), 
-            g2: g2.clone() 
+        Params {
+            k: *k,
+            order: *order,
+            g1: g1.clone(),
+            g2: g2.clone(),
         }
     }
 
@@ -62,13 +62,23 @@ impl Params {
     }
 
     pub fn is_valid(&self) -> bool {
-        if self.k == 0 || big::BIG::comp(&self.order, &big::BIG::new()) == 0 || self.g1.is_infinity() || self.g2.is_infinity() {
+        if self.k == 0
+            || big::BIG::comp(&self.order, &big::BIG::new()) == 0
+            || self.g1.is_infinity()
+            || self.g2.is_infinity()
+        {
             return false;
         }
         true
     }
 
     pub fn format_full(&self) -> String {
-        format!("g1: {}\ng2: {}\norder: {}\nk: {}", ecp_to_hex(&self.g1), ecp_to_hex(&self.g2), big_to_hex(&self.order), self.k)
+        format!(
+            "g1: {}\ng2: {}\norder: {}\nk: {}",
+            ecp_to_hex(&self.g1),
+            ecp_to_hex(&self.g2),
+            big_to_hex(&self.order),
+            self.k
+        )
     }
 }

@@ -1,11 +1,11 @@
-use super::params::Params;
-use super::private_key::PrivateKey;
 use super::ciphertext::Ciphertext;
-use super::plaintext::Plaintext;
 use super::main as kribe_core;
+use super::params::Params;
+use super::plaintext::Plaintext;
+use super::private_key::PrivateKey;
 
-use std::sync::Mutex;
 use once_cell::sync::Lazy;
+use std::sync::Mutex;
 use std::time::Instant;
 
 static PARAMS: Lazy<Mutex<Option<Params>>> = Lazy::new(|| Mutex::new(None));
@@ -124,8 +124,14 @@ pub fn kr_ibe_decrypt() -> String {
     let mut output = String::new();
     output.push_str("✅ Decryption Completed.\n\n");
     output.push_str(&pt_read.as_ref().unwrap().format_full());
-    output.push_str(&format!("\n🟠 Decryption Time: {:.2?}\n", decryption_duration));
-    output.push_str(&format!("🏁 Total Computation Time: {}\n", format_runtime(total_runtime)));
+    output.push_str(&format!(
+        "\n🟠 Decryption Time: {:.2?}\n",
+        decryption_duration
+    ));
+    output.push_str(&format!(
+        "🏁 Total Computation Time: {}\n",
+        format_runtime(total_runtime)
+    ));
 
     output
 }

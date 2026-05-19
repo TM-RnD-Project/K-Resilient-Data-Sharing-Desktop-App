@@ -42,11 +42,54 @@ impl Params {
         }
     }
 
-    pub fn new_params(k: &usize, order: &big::BIG, g1: &ecp::ECP, g2: &ecp::ECP, At: &Vec<ecp::ECP>, Bt: &Vec<ecp::ECP>, Dt: &Vec<ecp::ECP>, f1: polynomial::Polynomial, f2: polynomial::Polynomial, h1: polynomial::Polynomial, h2: polynomial::Polynomial, p1: polynomial::Polynomial, p2: polynomial::Polynomial) -> Self {
-        Params { k: *k, order: *order, g1: g1.clone(), g2: g2.clone(), At: At.clone(), Bt: Bt.clone(), Dt: Dt.clone(), f1: f1, f2: f2, h1: h1, h2: h2, p1: p1, p2: p2 }
+    pub fn new_params(
+        k: &usize,
+        order: &big::BIG,
+        g1: &ecp::ECP,
+        g2: &ecp::ECP,
+        At: &Vec<ecp::ECP>,
+        Bt: &Vec<ecp::ECP>,
+        Dt: &Vec<ecp::ECP>,
+        f1: polynomial::Polynomial,
+        f2: polynomial::Polynomial,
+        h1: polynomial::Polynomial,
+        h2: polynomial::Polynomial,
+        p1: polynomial::Polynomial,
+        p2: polynomial::Polynomial,
+    ) -> Self {
+        Params {
+            k: *k,
+            order: *order,
+            g1: g1.clone(),
+            g2: g2.clone(),
+            At: At.clone(),
+            Bt: Bt.clone(),
+            Dt: Dt.clone(),
+            f1: f1,
+            f2: f2,
+            h1: h1,
+            h2: h2,
+            p1: p1,
+            p2: p2,
+        }
     }
 
-    pub fn set_params(&mut self, k: usize, order: big::BIG, g1: ecp::ECP, g2: ecp::ECP, At: Vec<ecp::ECP>, Bt: Vec<ecp::ECP>, Dt: Vec<ecp::ECP>, f1: polynomial::Polynomial, f2: polynomial::Polynomial, h1: polynomial::Polynomial, h2: polynomial::Polynomial, p1: polynomial::Polynomial, p2: polynomial::Polynomial) {
+    pub fn set_params(
+        &mut self,
+        k: usize,
+        order: big::BIG,
+        g1: ecp::ECP,
+        g2: ecp::ECP,
+        At: Vec<ecp::ECP>,
+        Bt: Vec<ecp::ECP>,
+        Dt: Vec<ecp::ECP>,
+        f1: polynomial::Polynomial,
+        f2: polynomial::Polynomial,
+        h1: polynomial::Polynomial,
+        h2: polynomial::Polynomial,
+        p1: polynomial::Polynomial,
+        p2: polynomial::Polynomial,
+    ) {
         self.k = k;
         self.order = order;
         self.g1 = g1;
@@ -170,27 +213,51 @@ impl Params {
             output.push_str(&format!("Dt[{}]: {}\n", i, ecp_to_hex(&self.Dt[i])));
         }
         for i in 0..self.f1.get_degree() {
-            output.push_str(&format!("f1[{}]: {}\n", i, big_to_hex(&self.f1.get_coeff_at(i))));
+            output.push_str(&format!(
+                "f1[{}]: {}\n",
+                i,
+                big_to_hex(&self.f1.get_coeff_at(i))
+            ));
         }
         for i in 0..self.f2.get_degree() {
-            output.push_str(&format!("f2[{}]: {}\n", i, big_to_hex(&self.f2.get_coeff_at(i))));
+            output.push_str(&format!(
+                "f2[{}]: {}\n",
+                i,
+                big_to_hex(&self.f2.get_coeff_at(i))
+            ));
         }
         for i in 0..self.h1.get_degree() {
-            output.push_str(&format!("h1[{}]: {}\n", i, big_to_hex(&self.h1.get_coeff_at(i))));
+            output.push_str(&format!(
+                "h1[{}]: {}\n",
+                i,
+                big_to_hex(&self.h1.get_coeff_at(i))
+            ));
         }
         for i in 0..self.h2.get_degree() {
-            output.push_str(&format!("h2[{}]: {}\n", i, big_to_hex(&self.h2.get_coeff_at(i))));
+            output.push_str(&format!(
+                "h2[{}]: {}\n",
+                i,
+                big_to_hex(&self.h2.get_coeff_at(i))
+            ));
         }
         for i in 0..self.p1.get_degree() {
-            output.push_str(&format!("p1[{}]: {}\n", i, big_to_hex(&self.p1.get_coeff_at(i))));
+            output.push_str(&format!(
+                "p1[{}]: {}\n",
+                i,
+                big_to_hex(&self.p1.get_coeff_at(i))
+            ));
         }
         for i in 0..self.p2.get_degree() {
-            output.push_str(&format!("p2[{}]: {}\n", i, big_to_hex(&self.p2.get_coeff_at(i))));
+            output.push_str(&format!(
+                "p2[{}]: {}\n",
+                i,
+                big_to_hex(&self.p2.get_coeff_at(i))
+            ));
         }
         output.push_str("========End of Params=========\n");
 
         output
-    } 
+    }
 }
 
 fn big_to_hex(b: &big::BIG) -> String {

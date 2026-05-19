@@ -9,7 +9,7 @@ pub struct Ciphertext {
     u2: ecp::ECP,
     c: ecp::ECP,
     v_id: ecp::ECP,
-    aes_cipher:Vec<u8>,
+    aes_cipher: Vec<u8>,
 }
 
 impl Ciphertext {
@@ -23,11 +23,30 @@ impl Ciphertext {
         }
     }
 
-    pub fn new_ciphertext(u1: &ecp::ECP, u2: &ecp::ECP, c: &ecp::ECP, v_id: &ecp::ECP, aes_cipher: Vec<u8>) -> Self {
-        Ciphertext {u1:u1.clone(), u2:u2.clone(), c:c.clone(), v_id:v_id.clone(), aes_cipher}
+    pub fn new_ciphertext(
+        u1: &ecp::ECP,
+        u2: &ecp::ECP,
+        c: &ecp::ECP,
+        v_id: &ecp::ECP,
+        aes_cipher: Vec<u8>,
+    ) -> Self {
+        Ciphertext {
+            u1: u1.clone(),
+            u2: u2.clone(),
+            c: c.clone(),
+            v_id: v_id.clone(),
+            aes_cipher,
+        }
     }
 
-    pub fn set_ciphertext(&mut self, u1: ecp::ECP, u2: ecp::ECP, c: ecp::ECP, v_id: ecp::ECP, aes_cipher: Vec<u8>) {
+    pub fn set_ciphertext(
+        &mut self,
+        u1: ecp::ECP,
+        u2: ecp::ECP,
+        c: ecp::ECP,
+        v_id: ecp::ECP,
+        aes_cipher: Vec<u8>,
+    ) {
         self.u1 = u1;
         self.u2 = u2;
         self.c = c;

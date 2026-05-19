@@ -1,7 +1,7 @@
 extern crate mcore;
 
 pub struct Plaintext {
-    plaintext: String
+    plaintext: String,
 }
 
 impl Plaintext {

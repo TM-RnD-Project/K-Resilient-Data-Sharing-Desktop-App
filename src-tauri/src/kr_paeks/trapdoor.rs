@@ -13,10 +13,10 @@ pub struct Trapdoor {
 impl Trapdoor {
     // Constructor
     pub fn new() -> Self {
-        Trapdoor { 
-            t1: ecp::ECP::new(), 
-            t2: ecp::ECP::new(), 
-            u_cap: big::BIG::new()
+        Trapdoor {
+            t1: ecp::ECP::new(),
+            t2: ecp::ECP::new(),
+            u_cap: big::BIG::new(),
         }
     }
 
@@ -24,7 +24,7 @@ impl Trapdoor {
         Trapdoor {
             t1: t1.clone(),
             t2: t2.clone(),
-            u_cap: u_cap.clone()
+            u_cap: u_cap.clone(),
         }
     }
 
@@ -51,7 +51,6 @@ impl Trapdoor {
         output.push_str(&format!("u_cap: {}\n", big_to_hex(&self.u_cap)));
         output
     }
-
 }
 
 fn big_to_hex(b: &big::BIG) -> String {

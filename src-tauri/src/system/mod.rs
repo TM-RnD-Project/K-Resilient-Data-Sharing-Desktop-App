@@ -1,8 +1,9 @@
-pub mod state;
-pub mod setup;
-pub mod user;
-pub mod upload;
-pub mod download; 
-pub mod search;
 pub mod auth;
+pub mod benchmark;
+pub mod download;
+pub mod search;
+pub mod setup;
+pub mod state;
+pub mod upload;
+pub mod user;
 pub mod utils;

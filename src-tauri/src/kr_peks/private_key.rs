@@ -48,6 +48,10 @@ impl PrivateKey {
     }
 
     pub fn format_full(&self) -> String {
-        format!("P1:\n{}\nP2:\n{}", self.p1.format_full(), self.p2.format_full())
+        format!(
+            "P1:\n{}\nP2:\n{}",
+            self.p1.format_full(),
+            self.p2.format_full()
+        )
     }
 }

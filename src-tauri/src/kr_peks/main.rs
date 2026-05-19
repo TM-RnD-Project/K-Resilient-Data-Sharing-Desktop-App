@@ -1,25 +1,24 @@
 #![allow(non_snake_case)]
 
-use super::params::Params;
-use super::public_key::PublicKey;
-use super::private_key::PrivateKey;
 use super::ciphertext::Ciphertext;
-use super::trapdoor::Trapdoor;
+use super::params::Params;
 use super::polynomial::Polynomial;
+use super::private_key::PrivateKey;
+use super::public_key::PublicKey;
+use super::trapdoor::Trapdoor;
 use super::utils::*;
 
+use base64::*;
 use mcore::ed25519::big;
 use mcore::ed25519::ecp;
 use mcore::ed25519::rom;
-use std::time::Instant;
-use std::env;
-use mysql::*;
 use mysql::prelude::*;
-use base64::*;
+use mysql::*;
 use serde_json::{json, Value};
+use std::env;
+use std::time::Instant;
 
 pub fn setup(params: &mut Params, k: usize) {
-
     let order = big::BIG::new_ints(&rom::CURVE_ORDER);
 
     let mut rng = gen_seed();
@@ -32,7 +31,7 @@ pub fn setup(params: &mut Params, k: usize) {
 }
 
 pub fn keygen(params: &Params, pk: &mut PublicKey, sk: &mut PrivateKey) {
-    let k = params.get_k()+1;
+    let k = params.get_k() + 1;
     let order = params.get_order();
     let g1 = params.get_g1();
     let g2 = params.get_g2();
@@ -57,11 +56,11 @@ pub fn peks(params: &Params, pk: &PublicKey, w: &Vec<u8>) -> Option<Ciphertext> 
         return None;
     }
 
-    let k = params.get_k()+1;
+    let k = params.get_k() + 1;
     let order = params.get_order();
     let g1 = params.get_g1();
     let g2 = params.get_g2();
-        
+
     let mut hashw = hash_to_big(w, order);
     // println!("Hash of '{}': {}", w, big_to_hex(&hashw));
 
@@ -71,17 +70,23 @@ pub fn peks(params: &Params, pk: &PublicKey, w: &Vec<u8>) -> Option<Ciphertext> 
     let u1 = g1.mul(&r);
     let u2 = g2.mul(&r);
 
-    let mut sw = pk.get_Dt_i(0).mul(&big::BIG::powmod(&mut hashw, &big::BIG::new_int(0), &order));
+    let mut sw = pk
+        .get_Dt_i(0)
+        .mul(&big::BIG::powmod(&mut hashw, &big::BIG::new_int(0), &order));
     for i in 1..k {
         let i_isize: isize = i.try_into().unwrap();
-        sw.add(&pk.get_Dt_i(i).mul(&big::BIG::powmod(&mut hashw, &big::BIG::new_int(i_isize), &order)));
+        sw.add(&pk.get_Dt_i(i).mul(&big::BIG::powmod(
+            &mut hashw,
+            &big::BIG::new_int(i_isize),
+            &order,
+        )));
     }
     sw = sw.mul(&r);
 
     Some(Ciphertext::new_ciphertext(&u1, &u2, &sw))
 }
 
-pub fn trapdoor(params: &Params, sk: &PrivateKey, w: &Vec<u8>) -> Trapdoor{
+pub fn trapdoor(params: &Params, sk: &PrivateKey, w: &Vec<u8>) -> Trapdoor {
     let order = params.get_order();
     let hashw = hash_to_big(w, order);
 
@@ -99,11 +104,10 @@ pub fn test(c: &Ciphertext, t: &Trapdoor) -> bool {
         true
     } else {
         false
-    }    
+    }
 }
 
 fn main() {
-
     let w = "urgent";
     let k = 20;
     // Convert strings to byte arrays
@@ -116,15 +120,17 @@ fn main() {
 
     // User import params, sk, pk, ciphertext from files: cargo run parameter.params privatekey.sk publickey.pk ciphertext.cipher
     let args: Vec<String> = env::args().collect();
-    for i in &args{
-        if i.contains(".params"){
+    for i in &args {
+        if i.contains(".params") {
             let result = import_params(&mut params, &i);
-            match result{
+            match result {
                 Ok(_) => {
                     if params.is_valid() {
                         println!("System parameters imported successfully!");
-                    }else{
-                        eprintln!("Failed to import system parameters: System parameters are invalid.");
+                    } else {
+                        eprintln!(
+                            "Failed to import system parameters: System parameters are invalid."
+                        );
                         return;
                     }
                 }
@@ -133,13 +139,13 @@ fn main() {
                     return;
                 }
             }
-        }else if i.contains(".sk"){
+        } else if i.contains(".sk") {
             let result = import_sk(&mut sk, &i);
-            match result{
+            match result {
                 Ok(_) => {
                     if sk.is_valid() {
                         println!("Private key imported successfully!");
-                    }else{
+                    } else {
                         eprintln!("Failed to import private key: Private key is invalid.");
                         return;
                     }
@@ -148,37 +154,37 @@ fn main() {
                     eprintln!("Failed to import private key: {}", e);
                     return;
                 }
-            }            
-        }else if i.contains(".pk"){
+            }
+        } else if i.contains(".pk") {
             let result = import_pk(&mut pk, &i);
-            match result{
+            match result {
                 Ok(_) => {
                     if pk.is_valid() == 0 {
                         println!("Public key imported successfully!");
-                    }else{
+                    } else {
                         eprintln!("Failed to import public key: Public key is invalid.");
                         return;
                     }
                 }
                 Err(e) => {
                     eprintln!("Failed to import public key: {}", e);
-                    return
+                    return;
                 }
             }
-        }else if i.contains(".cipher"){
+        } else if i.contains(".cipher") {
             let result = import_c(&mut c, &i);
-            match result{
+            match result {
                 Ok(_) => {
                     if c.is_valid() {
                         println!("Ciphertext imported successfully!");
-                    }else{
+                    } else {
                         eprintln!("Failed to import ciphertext: Ciphertext is invalid.");
                         return;
                     }
                 }
                 Err(e) => {
                     eprintln!("Failed to import ciphertext: {}", e);
-                    return
+                    return;
                 }
             }
         }
@@ -186,7 +192,6 @@ fn main() {
 
     // No import from file
     if *&args.len() <= 1 {
-
         let start = Instant::now();
         setup(&mut params, k);
         let duration = start.elapsed();
@@ -217,12 +222,11 @@ fn main() {
     }
 
     params.print();
-    
+
     sk.print();
     pk.print();
-    
+
     c.print();
-    
 
     let start = Instant::now();
     let t = trapdoor(&params, &sk, &w_bytes);
@@ -268,38 +272,38 @@ fn main() {
     //     let overall_start = Instant::now();
 
     //     let w = "Urgent";
-    
+
     //     let mut params = Params::new();
     //     let mut pk = PublicKey::new();
     //     let mut sk = PrivateKey::new();
-    
+
     //     let setup_start = Instant::now();
     //     setup(&mut params);
     //     let setup_time = setup_start.elapsed();
     //     // params.print();
-    
+
     //     let keygen_start = Instant::now();
     //     keygen(&params, &mut pk, &mut sk);
     //     let keygen_time = keygen_start.elapsed();
     //     // sk.print();
     //     // pk.print();
-    
+
     //     let peks_start = Instant::now();
     //     let c = peks(&params, &pk, &w);
     //     let peks_time = peks_start.elapsed();
     //     // c.print();
-    
+
     //     let trapdoor_start = Instant::now();
     //     let t = trapdoor(&params, &sk, &w);
     //     let trapdoor_time = trapdoor_start.elapsed();
     //     // t.print();
-    
+
     //     let test_start = Instant::now();
     //     let result = test(&c, &t);
     //     let test_time = test_start.elapsed();
-    
+
     //     let total_time = overall_start.elapsed();
-    
+
     //     times.push(vec![
     //         setup_time.as_secs_f64() * 1000.0,
     //         keygen_time.as_secs_f64() * 1000.0,
@@ -308,13 +312,13 @@ fn main() {
     //         test_time.as_secs_f64() * 1000.0,
     //         total_time.as_secs_f64() * 1000.0,
     //     ]);
-    
+
     //     if result {
     //         println!("Test Successful!");
     //     } else {
     //         println!("Test Unsuccessful!");
     //     }
-    
+
     //     // println!("{} - Setup Time: {:.2?}, Keygen Time: {:.2?}, PEKS Time: {:.2?}, Trapdoor Time: {:.2?}, Test Time: {:.2?}, Total Time: {:.2?}", i, setup_time, keygen_time, peks_time, trapdoor_time, test_time, total_time);
     // }
 
@@ -354,7 +358,7 @@ fn TestSQLEnc(params: &Params, pk: &PublicKey, w: &Vec<u8>) {
             if body_bytes.windows(w.len()).any(|window| window == w) {
                 let ciphertext = match peks(&params, &pk, &w) {
                     Some(ciphertext) => ciphertext,
-                    None => return
+                    None => return,
                 };
 
                 let StringCipher = json!({
@@ -363,36 +367,62 @@ fn TestSQLEnc(params: &Params, pk: &PublicKey, w: &Vec<u8>) {
                     "sw": encode(ecp_to_bytes(ciphertext.get_sw()))
                 });
 
-                let update_stmt = "UPDATE JohnArnoldMail SET ciphertext = ? WHERE `Date` = ? AND `X-To` = ?";
-                conn.exec_drop(update_stmt, (StringCipher, date, to)).expect("Update failed.");
+                let update_stmt =
+                    "UPDATE JohnArnoldMail SET ciphertext = ? WHERE `Date` = ? AND `X-To` = ?";
+                conn.exec_drop(update_stmt, (StringCipher, date, to))
+                    .expect("Update failed.");
             }
         }
     }
 }
 
-
 fn TestSQLTest(t: &Trapdoor) -> i32 {
     let url = "mysql://root@127.0.0.1/EnronMailDS";
     let pool = Pool::new(url).expect("Failed to create pool.");
     let mut conn = pool.get_conn().expect("Failed to get connection.");
-    
+
     let select_stmt = "SELECT ciphertext FROM JohnArnoldMail";
     let result: Vec<Row> = conn.query(select_stmt).expect("Query failed.");
-    
+
     let mut cnt = 1;
 
     for row in result {
-        let ciphertext_opt: Option<Option<String>> = row.get_opt("ciphertext").expect("Failed to retrieve ciphertext_opt.").ok();
+        let ciphertext_opt: Option<Option<String>> = row
+            .get_opt("ciphertext")
+            .expect("Failed to retrieve ciphertext_opt.")
+            .ok();
 
         if let Some(Some(ciphertext_string)) = ciphertext_opt {
-            let data: Value = serde_json::from_str(&ciphertext_string).expect("Failed to deserialize ciphertext.");
-        
-            let u1 = bytes_to_ecp(&decode(data["u1"].as_str().expect("Failed to get a valid string from JSON")).expect("Failed to decode base64"));
-            let u2 = bytes_to_ecp(&decode(data["u2"].as_str().expect("Failed to get a valid string from JSON")).expect("Failed to decode base64"));
-            let sw = bytes_to_ecp(&decode(data["sw"].as_str().expect("Failed to get a valid string from JSON")).expect("Failed to decode base64"));
-        
+            let data: Value = serde_json::from_str(&ciphertext_string)
+                .expect("Failed to deserialize ciphertext.");
+
+            let u1 = bytes_to_ecp(
+                &decode(
+                    data["u1"]
+                        .as_str()
+                        .expect("Failed to get a valid string from JSON"),
+                )
+                .expect("Failed to decode base64"),
+            );
+            let u2 = bytes_to_ecp(
+                &decode(
+                    data["u2"]
+                        .as_str()
+                        .expect("Failed to get a valid string from JSON"),
+                )
+                .expect("Failed to decode base64"),
+            );
+            let sw = bytes_to_ecp(
+                &decode(
+                    data["sw"]
+                        .as_str()
+                        .expect("Failed to get a valid string from JSON"),
+                )
+                .expect("Failed to decode base64"),
+            );
+
             let c = Ciphertext::new_ciphertext(&u1, &u2, &sw);
-            
+
             let CntTest = test(&c, &t);
             if CntTest {
                 cnt += 1;

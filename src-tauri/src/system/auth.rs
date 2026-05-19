@@ -1,7 +1,7 @@
-use crate::system::state::APP_STATE;
-use crate::system::state::LoginSession;
 use crate::kr_ibi::main as kribi_core;
 use crate::kr_peks::{self, utils::*};
+use crate::system::state::LoginSession;
+use crate::system::state::APP_STATE;
 use crate::system::utils::id_to_bytes;
 
 pub fn login_start(id: &str) -> Result<(String, String), String> {
@@ -24,17 +24,11 @@ pub fn login_start(id: &str) -> Result<(String, String), String> {
 
     println!("Login start for ID: {}", id);
 
-    state.login_sessions.insert(id.to_string(), LoginSession {
-        g_r,
-        c1,
-        c2,
-        r,
-    });
+    state
+        .login_sessions
+        .insert(id.to_string(), LoginSession { g_r, c1, c2, r });
 
-    Ok((
-        kribi_core::big_to_hex(&c1),
-        kribi_core::big_to_hex(&c2),
-    ))
+    Ok((kribi_core::big_to_hex(&c1), kribi_core::big_to_hex(&c2)))
 }
 
 pub fn login_respond(id: &str) -> Result<(String, String), String> {
@@ -62,10 +56,7 @@ pub fn login_respond(id: &str) -> Result<(String, String), String> {
         params.get_order(),
     );
 
-    Ok((
-        kribi_core::big_to_hex(&s1),
-        kribi_core::big_to_hex(&s2),
-    ))
+    Ok((kribi_core::big_to_hex(&s1), kribi_core::big_to_hex(&s2)))
 }
 
 pub fn login_verify(id: &str, s1_hex: &str, s2_hex: &str) -> Result<bool, String> {

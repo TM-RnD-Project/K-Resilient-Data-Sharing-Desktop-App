@@ -1,14 +1,14 @@
 use tauri::command;
 
+use super::main as krpaeks_core;
+use crate::kr_paeks::ciphertext::Ciphertext;
 use crate::kr_paeks::params::Params;
 use crate::kr_paeks::private_key::PrivateKey;
 use crate::kr_paeks::public_key::PublicKey;
-use crate::kr_paeks::ciphertext::Ciphertext;
 use crate::kr_paeks::trapdoor::Trapdoor;
-use super::main as krpaeks_core;
 
-use std::sync::Mutex;
 use once_cell::sync::Lazy;
+use std::sync::Mutex;
 use std::time::Instant;
 
 static PARAMS: Lazy<Mutex<Option<Params>>> = Lazy::new(|| Mutex::new(None));
@@ -72,7 +72,10 @@ pub fn kr_paeks_keygen() -> String {
         output.push_str(&RECEIVER_SK.lock().unwrap().as_ref().unwrap().format_full());
         output.push_str("\n\n🔑 Receiver Public Key:\n");
         output.push_str(&RECEIVER_PK.lock().unwrap().as_ref().unwrap().format_full());
-        output.push_str(&format!("\n🟢 Keygen Time: {}\n", format_runtime(duration.as_secs_f64())));
+        output.push_str(&format!(
+            "\n🟢 Keygen Time: {}\n",
+            format_runtime(duration.as_secs_f64())
+        ));
 
         output
     } else {
@@ -89,7 +92,9 @@ pub fn kr_paeks_encrypt(keyword: String) -> String {
     let sender_sk_lock = SENDER_SK.lock().unwrap();
 
     if let (Some(ref params), Some(ref receiver_pk), Some(ref sender_sk)) = (
-        params_lock.as_ref(), receiver_pk_lock.as_ref(), sender_sk_lock.as_ref()
+        params_lock.as_ref(),
+        receiver_pk_lock.as_ref(),
+        sender_sk_lock.as_ref(),
     ) {
         let keyword_big = krpaeks_core::hash_to_big(&keyword);
         let ct = krpaeks_core::encrypt(params, receiver_pk, sender_sk, &keyword_big);
@@ -103,7 +108,10 @@ pub fn kr_paeks_encrypt(keyword: String) -> String {
         output.push_str("✅ KR-PAEKS Encryption Complete!\n\n");
         output.push_str("📦 Ciphertext:\n");
         output.push_str(&CIPHERTEXT.lock().unwrap().as_ref().unwrap().format_full());
-        output.push_str(&format!("\n🟣 Encryption Time: {}\n", format_runtime(duration.as_secs_f64())));
+        output.push_str(&format!(
+            "\n🟣 Encryption Time: {}\n",
+            format_runtime(duration.as_secs_f64())
+        ));
 
         output
     } else {
@@ -120,7 +128,9 @@ pub fn kr_paeks_trapdoor(keyword: String) -> String {
     let receiver_sk_lock = RECEIVER_SK.lock().unwrap();
 
     if let (Some(ref params), Some(ref sender_pk), Some(ref receiver_sk)) = (
-        params_lock.as_ref(), sender_pk_lock.as_ref(), receiver_sk_lock.as_ref()
+        params_lock.as_ref(),
+        sender_pk_lock.as_ref(),
+        receiver_sk_lock.as_ref(),
     ) {
         let keyword_big = krpaeks_core::hash_to_big(&keyword);
         let td = krpaeks_core::trapdoor(params, sender_pk, receiver_sk, &keyword_big);
@@ -134,8 +144,10 @@ pub fn kr_paeks_trapdoor(keyword: String) -> String {
         output.push_str("✅ KR-PAEKS Trapdoor Generation Complete!\n\n");
         output.push_str("🔑 Trapdoor:\n");
         output.push_str(&TRAPDOOR.lock().unwrap().as_ref().unwrap().format_full());
-        output.push_str(&format!("\n🟠 Trapdoor Time: {}\n", format_runtime(duration.as_secs_f64())));
-
+        output.push_str(&format!(
+            "\n🟠 Trapdoor Time: {}\n",
+            format_runtime(duration.as_secs_f64())
+        ));
 
         output
     } else {
@@ -166,7 +178,10 @@ pub fn kr_paeks_test() -> String {
         }
 
         output.push_str(&format!("⚡ Test Time: {:.2?}\n", duration));
-        output.push_str(&format!("🏁 Total Computation Time: {}\n", format_runtime(total_runtime)));
+        output.push_str(&format!(
+            "🏁 Total Computation Time: {}\n",
+            format_runtime(total_runtime)
+        ));
 
         output
     } else {
@@ -183,4 +198,3 @@ fn format_runtime(seconds: f64) -> String {
         format!("{:.2} s", seconds)
     }
 }
-

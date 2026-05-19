@@ -1,7 +1,7 @@
 use super::utils::*;
-use mcore::ed25519::ecp;
 use mcore::ed25519::big;
 use mcore::ed25519::ecdh;
+use mcore::ed25519::ecp;
 
 pub struct PublicKey {
     Dt: Vec<ecp::ECP>,
@@ -9,15 +9,11 @@ pub struct PublicKey {
 
 impl PublicKey {
     pub fn new() -> Self {
-        PublicKey {
-            Dt: Vec::new(),
-        }
+        PublicKey { Dt: Vec::new() }
     }
 
     pub fn new_public_key(Dt: Vec<ecp::ECP>) -> Self {
-        PublicKey {
-            Dt: Dt
-        }
+        PublicKey { Dt: Dt }
     }
 
     pub fn set_public_key(&mut self, Dt: Vec<ecp::ECP>) {
@@ -43,14 +39,14 @@ impl PublicKey {
 
     pub fn is_valid(&self) -> isize {
         for p in &self.Dt {
-            let mut bytes = [0u8; 2*big::MODBYTES+1];
+            let mut bytes = [0u8; 2 * big::MODBYTES + 1];
             p.tobytes(&mut bytes, false);
-            
+
             let result = ecdh::public_key_validate(&bytes);
             if result != 0 {
                 return result;
             }
-        }        
+        }
         0
     }
 
@@ -61,5 +57,4 @@ impl PublicKey {
         }
         result
     }
-
 }

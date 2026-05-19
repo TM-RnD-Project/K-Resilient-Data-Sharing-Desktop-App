@@ -24,7 +24,15 @@ impl PrivateKey {
         }
     }
 
-    pub fn set_private_key(&mut self, f1ID: big::BIG, f2ID: big::BIG, h1ID: big::BIG, h2ID: big::BIG, p1ID: big::BIG, p2ID: big::BIG) {
+    pub fn set_private_key(
+        &mut self,
+        f1ID: big::BIG,
+        f2ID: big::BIG,
+        h1ID: big::BIG,
+        h2ID: big::BIG,
+        p1ID: big::BIG,
+        p2ID: big::BIG,
+    ) {
         self.f1ID = f1ID;
         self.f2ID = f2ID;
         self.h1ID = h1ID;

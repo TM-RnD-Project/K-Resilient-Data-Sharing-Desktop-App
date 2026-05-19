@@ -17,7 +17,7 @@ impl Trapdoor {
     pub fn new_trapdoor(p1: &big::BIG, p2: &big::BIG) -> Self {
         Trapdoor {
             p1: p1.clone(),
-            p2: p2.clone()
+            p2: p2.clone(),
         }
     }
 

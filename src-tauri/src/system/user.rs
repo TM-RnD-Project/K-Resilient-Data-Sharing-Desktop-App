@@ -1,12 +1,11 @@
-use crate::system::state::{APP_STATE, PaeksKeyPair};
+use crate::system::state::{PaeksKeyPair, APP_STATE};
 use crate::system::utils::id_to_bytes;
 
 use crate::kr_ibe::{main as kribe_core, private_key::PrivateKey as IbePrivateKey};
 
 use crate::kr_paeks::{
-    main as krpaeks_core,
+    main as krpaeks_core, private_key::PrivateKey as PaeksPrivateKey,
     public_key::PublicKey as PaeksPublicKey,
-    private_key::PrivateKey as PaeksPrivateKey,
 };
 
 pub fn register_user(id: &str) -> Result<String, String> {

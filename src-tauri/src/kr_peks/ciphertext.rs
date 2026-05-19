@@ -21,7 +21,7 @@ impl Ciphertext {
         Ciphertext {
             u1: u1.clone(),
             u2: u2.clone(),
-            sw: sw.clone()
+            sw: sw.clone(),
         }
     }
 
@@ -60,6 +60,11 @@ impl Ciphertext {
     }
 
     pub fn format_full(&self) -> String {
-        format!("u1: {}\nu2: {}\nsw: {}", ecp_to_hex(&self.u1), ecp_to_hex(&self.u2), ecp_to_hex(&self.sw))
+        format!(
+            "u1: {}\nu2: {}\nsw: {}",
+            ecp_to_hex(&self.u1),
+            ecp_to_hex(&self.u2),
+            ecp_to_hex(&self.sw)
+        )
     }
 }

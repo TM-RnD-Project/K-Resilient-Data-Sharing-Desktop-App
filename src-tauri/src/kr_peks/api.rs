@@ -1,14 +1,14 @@
-use tauri::command;
+use super::main as krpeks_core;
+use crate::kr_peks::ciphertext::Ciphertext;
 use crate::kr_peks::params::Params;
 use crate::kr_peks::private_key::PrivateKey;
 use crate::kr_peks::public_key::PublicKey;
-use crate::kr_peks::ciphertext::Ciphertext;
 use crate::kr_peks::trapdoor::Trapdoor;
 use crate::kr_peks::utils::*;
-use super::main as krpeks_core;
+use tauri::command;
 
-use std::sync::Mutex;
 use once_cell::sync::Lazy;
+use std::sync::Mutex;
 use std::time::Instant;
 
 static PARAMS: Lazy<Mutex<Option<Params>>> = Lazy::new(|| Mutex::new(None));
@@ -96,9 +96,7 @@ pub fn kr_peks_encrypt(keyword: String) -> String {
 
                 output
             }
-            None => {
-                "❌ Error: Encryption failed. Invalid public key.".into()
-            }
+            None => "❌ Error: Encryption failed. Invalid public key.".into(),
         }
     } else {
         "❌ Error: Keygen not done yet!".into()
@@ -113,9 +111,9 @@ pub fn kr_peks_trapdoor(keyword: String) -> String {
     let pk_lock = PK.lock().unwrap();
     let sk_lock = SK.lock().unwrap();
 
-    if let (Some(ref params), Some(ref _pk), Some(ref sk)) = (
-        params_lock.as_ref(), pk_lock.as_ref(), sk_lock.as_ref()
-    ) {
+    if let (Some(ref params), Some(ref _pk), Some(ref sk)) =
+        (params_lock.as_ref(), pk_lock.as_ref(), sk_lock.as_ref())
+    {
         let keyword_bytes = string_to_bytes(&keyword);
 
         let td = krpeks_core::trapdoor(params, sk, &keyword_bytes);
@@ -160,7 +158,10 @@ pub fn kr_peks_test() -> String {
         }
 
         output.push_str(&format!("⚡ Test Time: {:.2?}\n", duration));
-        output.push_str(&format!("🏁 Total Computation Time: {}\n", format_runtime(total_runtime)));
+        output.push_str(&format!(
+            "🏁 Total Computation Time: {}\n",
+            format_runtime(total_runtime)
+        ));
 
         output
     } else {

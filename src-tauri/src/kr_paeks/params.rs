@@ -15,17 +15,24 @@ pub struct Params {
 impl Params {
     // Constructor (equivalent to Java's constructor)
     pub fn new() -> Self {
-        Params { 
-            g1: ecp::ECP::new(), 
-            g2: ecp::ECP::new(), 
-            msk: big::BIG::new(), 
-            order: big::BIG::new(), 
+        Params {
+            g1: ecp::ECP::new(),
+            g2: ecp::ECP::new(),
+            msk: big::BIG::new(),
+            order: big::BIG::new(),
             k: 0,
         }
     }
 
     // Setters (explicit setters only if needed)
-    pub fn set_params(&mut self, g1: ecp::ECP, g2: ecp::ECP, msk: big::BIG, order: big::BIG, k: usize) {
+    pub fn set_params(
+        &mut self,
+        g1: ecp::ECP,
+        g2: ecp::ECP,
+        msk: big::BIG,
+        order: big::BIG,
+        k: usize,
+    ) {
         self.g1 = g1;
         self.g2 = g2;
         self.msk = msk;

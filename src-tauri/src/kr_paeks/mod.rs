@@ -1,9 +1,9 @@
 pub mod api;
-pub mod params;
-pub mod private_key;
-pub mod public_key;
 pub mod ciphertext;
-pub mod trapdoor;
-pub mod polynomial;
 pub mod lagrange;
 pub mod main;
+pub mod params;
+pub mod polynomial;
+pub mod private_key;
+pub mod public_key;
+pub mod trapdoor;

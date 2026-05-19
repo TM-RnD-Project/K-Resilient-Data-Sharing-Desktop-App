@@ -1,20 +1,11 @@
-use crate::system::state::{
-    APP_STATE,
-    SharedPayload,
-    StoredData,
-    SearchScheme,
-    SearchIndex,
-};
+use crate::system::state::{SearchIndex, SearchScheme, SharedPayload, StoredData, APP_STATE};
 use crate::system::utils::id_to_bytes;
 use crate::system::utils::keyword_hash;
 
-use crate::kr_ibe::{
-    main as kribe_core,
-    ciphertext::Ciphertext as IbeCiphertext,
-};
+use crate::kr_ibe::{ciphertext::Ciphertext as IbeCiphertext, main as kribe_core};
 
-use crate::kr_peks::main as krpeks_core;
 use crate::kr_paeks::main as krpaeks_core;
+use crate::kr_peks::main as krpeks_core;
 
 pub fn upload(
     sender: &str,
@@ -75,12 +66,7 @@ pub fn upload(
 
     let msg_bytes = payload_json.as_bytes().to_vec();
 
-    kribe_core::encryption(
-        ibe_params,
-        &mut ibe_ct,
-        &receiver_bytes,
-        &msg_bytes,
-    );
+    kribe_core::encryption(ibe_params, &mut ibe_ct, &receiver_bytes, &msg_bytes);
 
     let selected_scheme = match scheme.to_lowercase().as_str() {
         "peks" => SearchScheme::Peks,
@@ -95,19 +81,12 @@ pub fn upload(
                 .as_ref()
                 .ok_or("PEKS params not initialised.")?;
 
-            let peks_pk = state
-                .peks_pk
-                .as_ref()
-                .ok_or("PEKS public key missing.")?;
+            let peks_pk = state.peks_pk.as_ref().ok_or("PEKS public key missing.")?;
 
             let keyword_bytes = keyword.as_bytes().to_vec();
 
-            let index = krpeks_core::peks(
-                peks_params,
-                peks_pk,
-                &keyword_bytes,
-            )
-            .ok_or("KR-PEKS encryption failed.")?;
+            let index = krpeks_core::peks(peks_params, peks_pk, &keyword_bytes)
+                .ok_or("KR-PEKS encryption failed.")?;
 
             SearchIndex::Peks(index)
         }

@@ -3,17 +3,17 @@
 
 mod kr_ibe;
 mod kr_ibi;
-mod kr_peks;
 mod kr_paeks;
+mod kr_peks;
 
 use kr_ibe::api::*;
 use kr_ibi::api::*;
-use kr_peks::api::*;
 use kr_paeks::api::*;
+use kr_peks::api::*;
 
 mod system;
 
-use system::{setup, user, upload, search, download, auth};
+use system::{auth, download, search, setup, upload, user};
 
 #[tauri::command]
 fn setup_all(k: usize) {
@@ -51,11 +51,7 @@ fn upload_file(
 }
 
 #[tauri::command]
-fn search_keyword(
-    user: String,
-    keyword: String,
-    scheme: String,
-) -> Result<Vec<usize>, String> {
+fn search_keyword(user: String, keyword: String, scheme: String) -> Result<Vec<usize>, String> {
     search::search(&user, &keyword, &scheme)
 }
 
@@ -87,27 +83,23 @@ fn main() {
             kr_ibe_extract,
             kr_ibe_encrypt,
             kr_ibe_decrypt,
-
             // KR-IBI
             kr_ibi_setup,
             kr_ibi_extract,
             kr_ibi_sign,
             kr_ibi_verify,
-
             // KR-PEKS
             kr_peks_setup,
             kr_peks_keygen,
             kr_peks_encrypt,
             kr_peks_trapdoor,
             kr_peks_test,
-
             // KR-PAEKS
             kr_paeks_setup,
             kr_paeks_keygen,
             kr_paeks_encrypt,
             kr_paeks_trapdoor,
             kr_paeks_test,
-
             // System
             setup_all,
             register,

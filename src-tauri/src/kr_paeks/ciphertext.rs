@@ -3,8 +3,8 @@ extern crate mcore;
 use mcore::ed25519::big;
 use mcore::ed25519::ecp;
 use mysql::serde;
-use serde::Serialize;
 use serde::Deserialize;
+use serde::Serialize;
 
 // #[derive(Serialize, Deserialize)]
 #[derive(Clone)]
@@ -17,10 +17,10 @@ pub struct Ciphertext {
 impl Ciphertext {
     // Constructor (equivalent to Java's constructors)
     pub fn new() -> Self {
-        Ciphertext { 
-            c1: ecp::ECP::new(), 
-            c2: ecp::ECP::new(), 
-            u: big::BIG::new() 
+        Ciphertext {
+            c1: ecp::ECP::new(),
+            c2: ecp::ECP::new(),
+            u: big::BIG::new(),
         }
     }
 
@@ -66,9 +66,7 @@ impl Ciphertext {
             big_to_hex(&self.u)
         )
     }
-
 }
-
 
 fn big_to_hex(b: &big::BIG) -> String {
     let mut bytes = [0u8; big::MODBYTES];

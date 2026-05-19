@@ -1,5 +1,5 @@
-use crate::system::state::{APP_STATE, SharedPayload};
 use crate::kr_ibe::{main as kribe_core, plaintext::Plaintext};
+use crate::system::state::{SharedPayload, APP_STATE};
 
 pub fn download(user: &str, index: usize) -> Result<SharedPayload, String> {
     let state = APP_STATE.lock().map_err(|_| "State lock failed")?;

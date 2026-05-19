@@ -8,7 +8,11 @@ pub struct Lagrange;
 impl Lagrange {
     /// Computes the Lagrange interpolating polynomial at x = 0
     /// using the given x_values, y_values, and modulo order.
-    pub fn interpolate_x(x_values: &Vec<big::BIG>, y_values: &Vec<big::BIG>, order: &big::BIG) -> big::BIG {
+    pub fn interpolate_x(
+        x_values: &Vec<big::BIG>,
+        y_values: &Vec<big::BIG>,
+        order: &big::BIG,
+    ) -> big::BIG {
         let k = x_values.len();
         assert_eq!(k, y_values.len(), "Mismatched input lengths!");
 

@@ -24,8 +24,12 @@ impl Polynomial {
         for i in 0..degree {
             coeff[i] = big::BIG::randomnum(&order, &mut rng);
         }
-        
-        Polynomial { degree, coeff, order }
+
+        Polynomial {
+            degree,
+            coeff,
+            order,
+        }
     }
 
     pub fn set_polynomial(&mut self, degree: usize, coeff: Vec<big::BIG>, order: big::BIG) {
@@ -36,12 +40,16 @@ impl Polynomial {
 
     pub fn evaluate(&self, mut x: big::BIG) -> big::BIG {
         let mut accum = big::BIG::new_int(0);
-    
+
         for i in 0..self.degree {
             let i_isize: isize = i.try_into().unwrap();
-    
-            let temp = big::BIG::modmul(&self.coeff[i], &big::BIG::powmod(&mut x, &big::BIG::new_int(i_isize), &self.order), &self.order);
-            
+
+            let temp = big::BIG::modmul(
+                &self.coeff[i],
+                &big::BIG::powmod(&mut x, &big::BIG::new_int(i_isize), &self.order),
+                &self.order,
+            );
+
             accum.add(&temp);
             accum.rmod(&self.order);
         }
@@ -77,7 +85,11 @@ impl Polynomial {
 
     pub fn format_full(&self) -> String {
         let mut result = String::new();
-        result.push_str(&format!("degree: {}\norder: {}\n", self.degree, big_to_hex(&self.order)));
+        result.push_str(&format!(
+            "degree: {}\norder: {}\n",
+            self.degree,
+            big_to_hex(&self.order)
+        ));
         for i in 0..self.coeff.len() {
             result.push_str(&format!("coeff[{}]: {}\n", i, big_to_hex(&self.coeff[i])));
         }
@@ -85,7 +97,11 @@ impl Polynomial {
     }
 
     pub fn is_valid(&self) -> bool {
-        if self.degree == 0 || big::BIG::comp(&self.order, &big::BIG::new()) == 0 || self.coeff.is_empty() || self.coeff.len() != self.degree {
+        if self.degree == 0
+            || big::BIG::comp(&self.order, &big::BIG::new()) == 0
+            || self.coeff.is_empty()
+            || self.coeff.len() != self.degree
+        {
             return false;
         }
         true

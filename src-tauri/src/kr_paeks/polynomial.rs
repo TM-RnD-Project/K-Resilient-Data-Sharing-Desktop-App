@@ -1,8 +1,8 @@
 extern crate mcore;
 use mcore::ed25519::big;
 use mcore::rand::RAND;
-use std::fmt;
 use rand::RngCore;
+use std::fmt;
 
 #[derive(Clone)]
 /// Polynomial operations.
@@ -13,7 +13,6 @@ pub struct Polynomial {
 }
 
 impl Polynomial {
-
     pub fn new() -> Self {
         Polynomial {
             degree: 0,
@@ -30,8 +29,12 @@ impl Polynomial {
         for i in 0..degree {
             coeff[i] = big::BIG::randomnum(&order, &mut rng);
         }
-        
-        Polynomial { degree, coeff, order }
+
+        Polynomial {
+            degree,
+            coeff,
+            order,
+        }
     }
 
     pub fn evaluate(&self, x: &big::BIG) -> big::BIG {
@@ -39,7 +42,11 @@ impl Polynomial {
         for j in 0..self.degree {
             let exp = big::BIG::new_int(j as isize);
             let mut x_clone = x.clone();
-            let t2 = big::BIG::modmul(&self.coeff[j], &x_clone.powmod(&exp, &self.order), &self.order);
+            let t2 = big::BIG::modmul(
+                &self.coeff[j],
+                &x_clone.powmod(&exp, &self.order),
+                &self.order,
+            );
             accum.add(&t2);
             accum.rmod(&self.order);
         }
@@ -66,7 +73,7 @@ impl Polynomial {
         let mut str = String::new();
         str.push_str("\n========Begin Polynomial=========\n");
         str.push_str(&format!("degree: {}\n", self.degree));
-        str.push_str(&format!("order: {}\n",big_to_hex(&self.order)));
+        str.push_str(&format!("order: {}\n", big_to_hex(&self.order)));
 
         for (i, coeff) in self.coeff.iter().enumerate() {
             str.push_str(&format!("coeff[{}]: {}\n", i, big_to_hex(&coeff)));
@@ -74,7 +81,6 @@ impl Polynomial {
         str.push_str("========End of Polynomial========\n");
         return str;
     }
-
 }
 
 fn big_to_hex(b: &big::BIG) -> String {

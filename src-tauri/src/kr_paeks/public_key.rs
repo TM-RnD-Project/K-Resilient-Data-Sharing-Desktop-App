@@ -1,7 +1,7 @@
 extern crate mcore;
 
-use mcore::ed25519::ecp;
 use mcore::ed25519::big;
+use mcore::ed25519::ecp;
 use std::fmt;
 
 #[derive(Clone)]
@@ -12,9 +12,7 @@ pub struct PublicKey {
 impl PublicKey {
     // Constructor
     pub fn new() -> Self {
-        PublicKey { 
-            dt: Vec::new(),
-        }
+        PublicKey { dt: Vec::new() }
     }
 
     // Setter
