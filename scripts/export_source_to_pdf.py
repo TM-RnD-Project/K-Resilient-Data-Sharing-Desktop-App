@@ -3,7 +3,6 @@
 
 from __future__ import annotations
 
-import json
 import math
 import os
 import sys
@@ -118,25 +117,6 @@ def write_file_list(files: list[Path]) -> None:
     OUTPUT_FILE_LIST.write_text("\n".join(lines) + "\n", encoding="utf-8")
 
 
-def project_title() -> str:
-    package_json = PROJECT_ROOT / "package.json"
-    fallback = "K-Resilient Data Sharing Desktop App"
-
-    if not package_json.is_file():
-        return fallback
-
-    try:
-        package_data = json.loads(package_json.read_text(encoding="utf-8"))
-    except (OSError, json.JSONDecodeError):
-        return fallback
-
-    name = str(package_data.get("name", "")).strip()
-    if not name:
-        return fallback
-
-    return name.replace("-", " ").replace("_", " ").title()
-
-
 def register_monospace_font(pdfmetrics, TTFont) -> tuple[str, bool]:
     windir = Path(os.environ.get("WINDIR", r"C:\Windows"))
     candidates = [
@@ -235,7 +215,7 @@ def build_pages(files: list[Path], page_size, pdfmetrics, font_name: str, unicod
     page_capacity = math.floor((top - bottom) / code_leading)
     first_page_capacity = math.floor((top - heading_space - bottom) / code_leading)
 
-    pages = [{"kind": "cover"}]
+    pages = []
 
     toc_lines = [f"{index}. {rel_path(path)}" for index, path in enumerate(files, 1)]
     toc_capacity = 44
@@ -280,23 +260,12 @@ def draw_pdf(files: list[Path]) -> int:
     width, height = A4
     margin_x = 42
     pdf = canvas.Canvas(str(OUTPUT_PDF), pagesize=A4)
-    title = project_title()
     total_pages = len(pages)
 
     for page_number, page in enumerate(pages, 1):
         kind = page["kind"]
 
-        if kind == "cover":
-            pdf.setFillColor(colors.black)
-            pdf.setFont("Helvetica-Bold", 22)
-            pdf.drawCentredString(width / 2, height - 210, title)
-            pdf.setFont("Helvetica", 16)
-            pdf.drawCentredString(width / 2, height - 238, "Source Code Submission")
-            pdf.setFont("Helvetica", 11)
-            pdf.drawCentredString(width / 2, height - 280, f"Generated: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
-            pdf.drawCentredString(width / 2, height - 300, f"Included source files: {len(files)}")
-
-        elif kind == "toc":
+        if kind == "toc":
             pdf.setFillColor(colors.black)
             pdf.setFont("Helvetica-Bold", 16)
             pdf.drawString(margin_x, height - 54, "Table of Contents / Included Files")
