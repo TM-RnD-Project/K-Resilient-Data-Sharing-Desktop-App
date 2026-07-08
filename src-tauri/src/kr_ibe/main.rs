@@ -9,7 +9,7 @@ use super::private_key::PrivateKey;
 extern crate mcore;
 
 use aes_gcm::{
-    aead::{Aead, KeyInit, OsRng},
+    aead::{Aead, KeyInit, OsRng, Payload},
     Aes256Gcm, Nonce,
 };
 use generic_array::typenum::U32;
@@ -99,6 +99,16 @@ pub fn extract(params: &Params, sk: &mut PrivateKey, id: &Vec<u8>) {
 }
 
 pub fn encryption(params: &Params, ciphertext: &mut Ciphertext, id: &Vec<u8>, m: &Vec<u8>) {
+    encryption_with_aad(params, ciphertext, id, m, b"").expect("KR-IBE payload encryption failed");
+}
+
+pub fn encryption_with_aad(
+    params: &Params,
+    ciphertext: &mut Ciphertext,
+    id: &Vec<u8>,
+    m: &Vec<u8>,
+    aad: &[u8],
+) -> Result<(), String> {
     let order = params.get_order();
 
     //get the value of params
@@ -181,8 +191,14 @@ pub fn encryption(params: &Params, ciphertext: &mut Ciphertext, id: &Vec<u8>, m:
 
     // AES Encrypt message m
     let aes_ciphertext = cipher
-        .encrypt(nonce, m.as_ref())
-        .expect("encryption failure!"); // NOTE: handle this error appropriately!
+        .encrypt(
+            nonce,
+            Payload {
+                msg: m.as_ref(),
+                aad,
+            },
+        )
+        .map_err(|_| "AES-GCM payload encryption failed.".to_string())?;
 
     // AES-GCM Encryption End
 
@@ -204,6 +220,8 @@ pub fn encryption(params: &Params, ciphertext: &mut Ciphertext, id: &Vec<u8>, m:
 
     //E9
     ciphertext.set_ciphertext(u1, u2, c, v_id, aes_ciphertext);
+
+    Ok(())
 }
 
 pub fn decryption(
@@ -212,6 +230,16 @@ pub fn decryption(
     ciphertext: &mut Ciphertext,
     plaintext: &mut Plaintext,
 ) {
+    let _ = decryption_with_aad(params, sk, ciphertext, plaintext, b"");
+}
+
+pub fn decryption_with_aad(
+    params: &Params,
+    sk: &PrivateKey,
+    ciphertext: &mut Ciphertext,
+    plaintext: &mut Plaintext,
+    aad: &[u8],
+) -> Result<(), String> {
     let order = params.get_order();
 
     let u1 = ciphertext.get_u1();
@@ -280,18 +308,25 @@ pub fn decryption(
 
         // Decrypt the AES ciphertext
         let decrypted_plaintext = cipher
-            .decrypt(nonce, aes_cipher.as_ref())
-            .expect("decryption failure!"); // NOTE: handle this error appropriately!
+            .decrypt(
+                nonce,
+                Payload {
+                    msg: aes_cipher.as_ref(),
+                    aad,
+                },
+            )
+            .map_err(|_| "AES-GCM payload authentication failed.".to_string())?;
 
         // Convert the decrypted plaintext from Vec<u8> to String
         let decrypted_string = String::from_utf8(decrypted_plaintext)
-            .expect("Failed to convert decrypted plaintext to string");
+            .map_err(|_| "Decrypted payload is not valid UTF-8.".to_string())?;
 
         // AES-GCM Decryption End
 
         plaintext.set_plaintext(decrypted_string);
+        Ok(())
     } else {
-        println!("The v_id in E8 is not equal to v_id in D2 !");
+        Err("KR-IBE ciphertext validation failed for this private key.".to_string())
     }
 }
 
@@ -387,4 +422,118 @@ fn vec_to_generic_array(vec: Vec<u8>) -> GenericArray<u8, U32> {
 
 fn string_to_bytes(input: &str) -> Vec<u8> {
     input.as_bytes().to_vec()
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::system::utils::record_aad;
+
+    fn aad(sender: &str, receiver: &str, mode: &str, tag: &str, index: &str) -> Vec<u8> {
+        record_aad(sender, receiver, mode, tag, index)
+    }
+
+    fn decrypt_result(
+        params: &Params,
+        sk: &PrivateKey,
+        ciphertext: &Ciphertext,
+        aad: &[u8],
+    ) -> Result<String, String> {
+        let mut ciphertext = ciphertext.clone();
+        let mut plaintext = Plaintext::new();
+        decryption_with_aad(params, sk, &mut ciphertext, &mut plaintext, aad)?;
+        Ok(plaintext.to_string())
+    }
+
+    #[test]
+    fn record_context_authenticates_and_rejects_tampering_and_swaps() {
+        let receiver = b"receiver@example.test".to_vec();
+        let other_receiver = b"other@example.test".to_vec();
+        let message = b"authenticated record payload".to_vec();
+        let mut params = Params::new();
+        setup(&mut params, 3);
+
+        let mut receiver_sk = PrivateKey::new();
+        extract(&params, &mut receiver_sk, &receiver);
+        let mut other_receiver_sk = PrivateKey::new();
+        extract(&params, &mut other_receiver_sk, &other_receiver);
+
+        let correct_aad = aad(
+            "alice@example.test",
+            "receiver@example.test",
+            "peks",
+            "keyword-tag-1",
+            "search-index-1",
+        );
+        let mut ciphertext = Ciphertext::new();
+        encryption_with_aad(&params, &mut ciphertext, &receiver, &message, &correct_aad).unwrap();
+
+        assert_eq!(
+            decrypt_result(&params, &receiver_sk, &ciphertext, &correct_aad).unwrap(),
+            "authenticated record payload"
+        );
+
+        let tampered_contexts = [
+            aad(
+                "mallory@example.test",
+                "receiver@example.test",
+                "peks",
+                "keyword-tag-1",
+                "search-index-1",
+            ),
+            aad(
+                "alice@example.test",
+                "other@example.test",
+                "peks",
+                "keyword-tag-1",
+                "search-index-1",
+            ),
+            aad(
+                "alice@example.test",
+                "receiver@example.test",
+                "paeks",
+                "keyword-tag-1",
+                "search-index-1",
+            ),
+            aad(
+                "alice@example.test",
+                "receiver@example.test",
+                "peks",
+                "wrong-keyword-tag",
+                "search-index-1",
+            ),
+            aad(
+                "alice@example.test",
+                "receiver@example.test",
+                "peks",
+                "keyword-tag-1",
+                "replacement-search-index",
+            ),
+        ];
+
+        for tampered_aad in tampered_contexts {
+            assert!(decrypt_result(&params, &receiver_sk, &ciphertext, &tampered_aad).is_err());
+        }
+
+        let second_aad = aad(
+            "alice@example.test",
+            "receiver@example.test",
+            "peks",
+            "keyword-tag-2",
+            "search-index-2",
+        );
+        let mut second_ciphertext = Ciphertext::new();
+        encryption_with_aad(
+            &params,
+            &mut second_ciphertext,
+            &receiver,
+            &b"second payload".to_vec(),
+            &second_aad,
+        )
+        .unwrap();
+
+        assert!(decrypt_result(&params, &receiver_sk, &ciphertext, &second_aad).is_err());
+        assert!(decrypt_result(&params, &receiver_sk, &second_ciphertext, &correct_aad).is_err());
+        assert!(decrypt_result(&params, &other_receiver_sk, &ciphertext, &correct_aad).is_err());
+    }
 }

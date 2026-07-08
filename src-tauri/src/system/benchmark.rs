@@ -3,7 +3,6 @@ use std::fmt::{self, Display};
 use std::fs::{self, File};
 use std::hash::{Hash, Hasher};
 use std::io::{BufRead, BufReader, BufWriter, Write};
-use std::panic::{catch_unwind, AssertUnwindSafe};
 use std::path::{Path, PathBuf};
 use std::thread;
 use std::time::Instant;
@@ -24,7 +23,7 @@ use crate::kr_peks::{
     ciphertext::Ciphertext as PeksCiphertext, main as krpeks_core, params::Params as PeksParams,
     private_key::PrivateKey as PeksPrivateKey, public_key::PublicKey as PeksPublicKey,
 };
-use crate::system::utils::keyword_hash;
+use crate::system::utils::{keyword_hash, record_aad};
 use mcore::ed25519::{big, ecp, rom};
 use mcore::sha3::{SHA3, SHAKE256};
 
@@ -48,6 +47,13 @@ impl BenchmarkScheme {
         match self {
             Self::Peks => Self::Paeks,
             Self::Paeks => Self::Peks,
+        }
+    }
+
+    fn as_str(self) -> &'static str {
+        match self {
+            Self::Peks => "peks",
+            Self::Paeks => "paeks",
         }
     }
 }
@@ -234,6 +240,15 @@ pub struct BenchmarkSummaryResult {
 enum SearchIndex {
     Peks(PeksCiphertext),
     Paeks(PaeksCiphertext),
+}
+
+impl SearchIndex {
+    fn format_full(&self) -> String {
+        match self {
+            Self::Peks(ciphertext) => ciphertext.format_full(),
+            Self::Paeks(ciphertext) => ciphertext.format_full(),
+        }
+    }
 }
 
 struct StoredBenchmarkRecord {
@@ -426,22 +441,24 @@ fn run_one(
     let payload = selected.body.as_bytes().to_vec();
     let receiver_bytes = receiver.as_bytes().to_vec();
 
+    let start_index = Instant::now();
+    // Records are constructed programmatically while using the same searchable-encryption
+    // and KR-IBE backend routines as the application upload/download workflow.
+    let mut stored_records = build_stored_records(scheme, records, &state, &sender, &receiver);
+    let index_generation_ms = elapsed_ms(start_index);
+    let selected_aad = benchmark_record_aad(&stored_records[selected_index]);
+
     let start_encrypt = Instant::now();
     let mut ibe_ct = IbeCiphertext::new();
-    kribe_core::encryption(&state.ibe_params, &mut ibe_ct, &receiver_bytes, &payload);
+    kribe_core::encryption_with_aad(
+        &state.ibe_params,
+        &mut ibe_ct,
+        &receiver_bytes,
+        &payload,
+        &selected_aad,
+    )?;
+    stored_records[selected_index].ct = ibe_ct.clone();
     let ibe_encrypt_ms = elapsed_ms(start_encrypt);
-
-    let start_index = Instant::now();
-    let stored_records = build_stored_records(
-        scheme,
-        records,
-        &state,
-        &sender,
-        &receiver,
-        selected_index,
-        &ibe_ct,
-    );
-    let index_generation_ms = elapsed_ms(start_index);
     let search_index_size_bytes = stored_records
         .first()
         .map(|record| search_index_size(&record.search_index))
@@ -507,6 +524,7 @@ fn run_one(
             &state.ibe_params,
             &state.receiver_ibe_sk,
             &stored_records[selected_index].ct,
+            &selected_aad,
             &authorised_trace,
         )
     } else {
@@ -538,6 +556,7 @@ fn run_one(
         &state.ibe_params,
         &unauthorised_ibe_sk,
         &ibe_ct,
+        &selected_aad,
         &unauthorised_trace,
     );
     let unauthorised_decryption_failed = unauthorised_plaintext.as_deref() != Some(&selected.body);
@@ -760,13 +779,10 @@ fn build_stored_records(
     state: &BenchmarkState,
     sender: &str,
     owner: &str,
-    selected_index: usize,
-    selected_ct: &IbeCiphertext,
 ) -> Vec<StoredBenchmarkRecord> {
     records
         .iter()
-        .enumerate()
-        .filter_map(|(index, record)| {
+        .filter_map(|record| {
             let search_index = match scheme {
                 BenchmarkScheme::Peks => krpeks_core::peks(
                     &state.peks_params,
@@ -786,13 +802,9 @@ fn build_stored_records(
             };
 
             Some(StoredBenchmarkRecord {
-                // Search correctness does not need every payload body decrypted. The selected
-                // record carries the real upload ciphertext used by the retrieval check.
-                ct: if index == selected_index {
-                    selected_ct.clone()
-                } else {
-                    IbeCiphertext::new()
-                },
+                // Search scaling does not require every placeholder payload to be encrypted.
+                // The selected record is populated by the real authenticated upload above.
+                ct: IbeCiphertext::new(),
                 search_scheme: scheme,
                 sender: sender.to_string(),
                 owner: owner.to_string(),
@@ -917,10 +929,25 @@ fn raw_search_indexes(
     }
 }
 
-fn decrypt_payload(params: &IbeParams, sk: &IbePrivateKey, ct: &IbeCiphertext) -> Option<String> {
+fn benchmark_record_aad(record: &StoredBenchmarkRecord) -> Vec<u8> {
+    record_aad(
+        &record.sender,
+        &record.owner,
+        record.search_scheme.as_str(),
+        &record.keyword_hash,
+        &record.search_index.format_full(),
+    )
+}
+
+fn decrypt_payload(
+    params: &IbeParams,
+    sk: &IbePrivateKey,
+    ct: &IbeCiphertext,
+    aad: &[u8],
+) -> Option<String> {
     let mut ciphertext = ct.clone();
     let mut plaintext = Plaintext::new();
-    kribe_core::decryption(params, sk, &mut ciphertext, &mut plaintext);
+    kribe_core::decryption_with_aad(params, sk, &mut ciphertext, &mut plaintext, aad).ok()?;
     let text = plaintext.to_string();
     if text.is_empty() {
         None
@@ -933,6 +960,7 @@ fn decrypt_payload_checked(
     params: &IbeParams,
     sk: &IbePrivateKey,
     ct: &IbeCiphertext,
+    aad: &[u8],
     trace: &DecryptTrace,
 ) -> Option<String> {
     if !ibe_v_id_matches(params, sk, ct) {
@@ -943,9 +971,7 @@ fn decrypt_payload_checked(
         return None;
     }
 
-    catch_unwind(AssertUnwindSafe(|| decrypt_payload(params, sk, ct)))
-        .ok()
-        .flatten()
+    decrypt_payload(params, sk, ct, aad)
 }
 
 fn ibe_v_id_matches(params: &IbeParams, sk: &IbePrivateKey, ct: &IbeCiphertext) -> bool {
@@ -1682,4 +1708,49 @@ fn write_comparison_csv(path: &str, summaries: &[BenchmarkSummaryResult]) -> Ben
 
 fn csv_writer(path: &str) -> BenchmarkResult<BufWriter<File>> {
     Ok(BufWriter::new(File::create(path)?))
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn authenticated_benchmark_retrieval_preserves_negative_checks() {
+        let records = vec![
+            EmailRecord {
+                sender: "sender@example.test".to_string(),
+                receiver: "receiver@example.test".to_string(),
+                subject: "alpha".to_string(),
+                body: "first benchmark payload".to_string(),
+                keyword: "alpha".to_string(),
+            },
+            EmailRecord {
+                sender: "sender@example.test".to_string(),
+                receiver: "receiver@example.test".to_string(),
+                subject: "bravo".to_string(),
+                body: "second benchmark payload".to_string(),
+                keyword: "bravo".to_string(),
+            },
+        ];
+        let config = BenchmarkConfig {
+            dataset_sizes: vec![records.len()],
+            authorised_user_counts: vec![1],
+            runs_per_setting: 1,
+            security_threshold: 3,
+            schemes: BenchmarkScheme::all().to_vec(),
+            detected_cpu_threads: 1,
+            benchmark_workers: 1,
+            debug_raw: false,
+        };
+
+        for scheme in BenchmarkScheme::all() {
+            let result = run_one(scheme, records.len(), 1, 1, &records, &config).unwrap();
+            assert_eq!(result.successful_decryptions, 1);
+            assert!(result.wrong_keyword_rejected);
+            assert!(result.wrong_scheme_rejected);
+            assert!(result.unauthorised_decryption_failed);
+            assert!(result.authenticated_login_passed);
+            assert!(result.unauthenticated_rejected);
+        }
+    }
 }

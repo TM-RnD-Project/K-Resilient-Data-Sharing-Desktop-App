@@ -1,6 +1,5 @@
 use crate::system::state::{SearchIndex, SearchScheme, SharedPayload, StoredData, APP_STATE};
-use crate::system::utils::id_to_bytes;
-use crate::system::utils::keyword_hash;
+use crate::system::utils::{id_to_bytes, keyword_hash, record_aad};
 
 use crate::kr_ibe::{ciphertext::Ciphertext as IbeCiphertext, main as kribe_core};
 
@@ -33,10 +32,6 @@ pub fn upload(
         .as_ref()
         .ok_or("IBE params not initialised.")?;
 
-    let mut ibe_ct = IbeCiphertext::new();
-
-    let receiver_bytes = id_to_bytes(receiver);
-
     let payload = match payload_type {
         "text" => SharedPayload {
             payload_type: "text".to_string(),
@@ -63,10 +58,6 @@ pub fn upload(
 
     let payload_json = serde_json::to_string(&payload)
         .map_err(|error| format!("Failed to serialise upload payload: {error}"))?;
-
-    let msg_bytes = payload_json.as_bytes().to_vec();
-
-    kribe_core::encryption(ibe_params, &mut ibe_ct, &receiver_bytes, &msg_bytes);
 
     let selected_scheme = match scheme.to_lowercase().as_str() {
         "peks" => SearchScheme::Peks,
@@ -120,13 +111,26 @@ pub fn upload(
         }
     };
 
+    let deterministic_keyword_hash = keyword_hash(keyword);
+    let aad = record_aad(
+        sender,
+        receiver,
+        selected_scheme.as_str(),
+        &deterministic_keyword_hash,
+        &search_index.format_full(),
+    );
+    let receiver_bytes = id_to_bytes(receiver);
+    let msg_bytes = payload_json.as_bytes().to_vec();
+    let mut ibe_ct = IbeCiphertext::new();
+    kribe_core::encryption_with_aad(ibe_params, &mut ibe_ct, &receiver_bytes, &msg_bytes, &aad)?;
+
     state.database.push(StoredData {
         ct: ibe_ct,
         search_index,
         search_scheme: selected_scheme,
         sender: sender.to_string(),
         owner: receiver.to_string(),
-        keyword_hash: keyword_hash(keyword),
+        keyword_hash: deterministic_keyword_hash,
     });
 
     Ok(())

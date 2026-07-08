@@ -1,5 +1,6 @@
 use crate::kr_ibe::{main as kribe_core, plaintext::Plaintext};
 use crate::system::state::{SharedPayload, APP_STATE};
+use crate::system::utils::record_aad;
 
 pub fn download(user: &str, index: usize) -> Result<SharedPayload, String> {
     let state = APP_STATE.lock().map_err(|_| "State lock failed")?;
@@ -30,12 +31,22 @@ pub fn download(user: &str, index: usize) -> Result<SharedPayload, String> {
     }
 
     let mut ct = data.ct.clone();
+    let aad = record_aad(
+        &data.sender,
+        &data.owner,
+        data.search_scheme.as_str(),
+        &data.keyword_hash,
+        &data.search_index.format_full(),
+    );
 
     drop(state);
 
     let mut pt = Plaintext::new();
 
-    kribe_core::decryption(&params, &sk, &mut ct, &mut pt);
+    kribe_core::decryption_with_aad(&params, &sk, &mut ct, &mut pt, &aad).map_err(|_| {
+        "Record authentication failed: stored payload is not bound to this search record."
+            .to_string()
+    })?;
 
     let plaintext = pt.to_string();
     match serde_json::from_str::<SharedPayload>(&plaintext) {

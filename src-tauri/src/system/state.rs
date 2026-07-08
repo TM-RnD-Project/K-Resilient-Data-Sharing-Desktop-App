@@ -42,10 +42,28 @@ pub enum SearchScheme {
     Paeks,
 }
 
+impl SearchScheme {
+    pub fn as_str(&self) -> &'static str {
+        match self {
+            Self::Peks => "peks",
+            Self::Paeks => "paeks",
+        }
+    }
+}
+
 #[derive(Clone)]
 pub enum SearchIndex {
     Peks(PeksCiphertext),
     Paeks(PaeksCiphertext),
+}
+
+impl SearchIndex {
+    pub fn format_full(&self) -> String {
+        match self {
+            Self::Peks(ciphertext) => ciphertext.format_full(),
+            Self::Paeks(ciphertext) => ciphertext.format_full(),
+        }
+    }
 }
 
 #[derive(Clone)]
