@@ -1,5 +1,4 @@
 use crate::system::state::{SearchIndex, SearchScheme, APP_STATE};
-use crate::system::utils::keyword_hash;
 
 use crate::kr_paeks::main as krpaeks_core;
 use crate::kr_peks::main as krpeks_core;
@@ -17,7 +16,6 @@ pub fn search(user: &str, keyword: &str, scheme: &str) -> Result<Vec<usize>, Str
         _ => return Err("Invalid search scheme. Use 'peks' or 'paeks'.".to_string()),
     };
 
-    let search_hash = keyword_hash(keyword);
     let mut results = Vec::new();
 
     match selected_scheme {
@@ -35,10 +33,6 @@ pub fn search(user: &str, keyword: &str, scheme: &str) -> Result<Vec<usize>, Str
 
             for (index, data) in state.database.iter().enumerate() {
                 if data.owner != user {
-                    continue;
-                }
-
-                if data.keyword_hash != search_hash {
                     continue;
                 }
 
@@ -76,10 +70,6 @@ pub fn search(user: &str, keyword: &str, scheme: &str) -> Result<Vec<usize>, Str
 
             for (index, data) in state.database.iter().enumerate() {
                 if data.owner != user {
-                    continue;
-                }
-
-                if data.keyword_hash != search_hash {
                     continue;
                 }
 

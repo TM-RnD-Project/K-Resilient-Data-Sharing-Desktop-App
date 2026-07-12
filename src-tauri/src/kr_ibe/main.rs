@@ -429,8 +429,8 @@ mod tests {
     use super::*;
     use crate::system::utils::record_aad;
 
-    fn aad(sender: &str, receiver: &str, mode: &str, tag: &str, index: &str) -> Vec<u8> {
-        record_aad(sender, receiver, mode, tag, index)
+    fn aad(sender: &str, receiver: &str, mode: &str, index: &str) -> Vec<u8> {
+        record_aad(sender, receiver, mode, index)
     }
 
     fn decrypt_result(
@@ -462,7 +462,6 @@ mod tests {
             "alice@example.test",
             "receiver@example.test",
             "peks",
-            "keyword-tag-1",
             "search-index-1",
         );
         let mut ciphertext = Ciphertext::new();
@@ -478,35 +477,24 @@ mod tests {
                 "mallory@example.test",
                 "receiver@example.test",
                 "peks",
-                "keyword-tag-1",
                 "search-index-1",
             ),
             aad(
                 "alice@example.test",
                 "other@example.test",
                 "peks",
-                "keyword-tag-1",
                 "search-index-1",
             ),
             aad(
                 "alice@example.test",
                 "receiver@example.test",
                 "paeks",
-                "keyword-tag-1",
                 "search-index-1",
             ),
             aad(
                 "alice@example.test",
                 "receiver@example.test",
                 "peks",
-                "wrong-keyword-tag",
-                "search-index-1",
-            ),
-            aad(
-                "alice@example.test",
-                "receiver@example.test",
-                "peks",
-                "keyword-tag-1",
                 "replacement-search-index",
             ),
         ];
@@ -515,11 +503,21 @@ mod tests {
             assert!(decrypt_result(&params, &receiver_sk, &ciphertext, &tampered_aad).is_err());
         }
 
+        let mut tampered_payload = ciphertext.get_aes_cipher().clone();
+        tampered_payload[0] ^= 0x01;
+        let tampered_ciphertext = Ciphertext::new_ciphertext(
+            ciphertext.get_u1(),
+            ciphertext.get_u2(),
+            ciphertext.get_c(),
+            ciphertext.get_v_id(),
+            tampered_payload,
+        );
+        assert!(decrypt_result(&params, &receiver_sk, &tampered_ciphertext, &correct_aad).is_err());
+
         let second_aad = aad(
             "alice@example.test",
             "receiver@example.test",
             "peks",
-            "keyword-tag-2",
             "search-index-2",
         );
         let mut second_ciphertext = Ciphertext::new();

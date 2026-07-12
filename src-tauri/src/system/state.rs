@@ -73,7 +73,6 @@ pub struct StoredData {
     pub search_scheme: SearchScheme,
     pub sender: String,
     pub owner: String,
-    pub keyword_hash: String,
 }
 
 #[derive(Clone, Deserialize, Serialize)]

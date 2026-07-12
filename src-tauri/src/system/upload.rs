@@ -1,5 +1,5 @@
 use crate::system::state::{SearchIndex, SearchScheme, SharedPayload, StoredData, APP_STATE};
-use crate::system::utils::{id_to_bytes, keyword_hash, record_aad};
+use crate::system::utils::{id_to_bytes, record_aad};
 
 use crate::kr_ibe::{ciphertext::Ciphertext as IbeCiphertext, main as kribe_core};
 
@@ -111,12 +111,10 @@ pub fn upload(
         }
     };
 
-    let deterministic_keyword_hash = keyword_hash(keyword);
     let aad = record_aad(
         sender,
         receiver,
         selected_scheme.as_str(),
-        &deterministic_keyword_hash,
         &search_index.format_full(),
     );
     let receiver_bytes = id_to_bytes(receiver);
@@ -130,7 +128,6 @@ pub fn upload(
         search_scheme: selected_scheme,
         sender: sender.to_string(),
         owner: receiver.to_string(),
-        keyword_hash: deterministic_keyword_hash,
     });
 
     Ok(())

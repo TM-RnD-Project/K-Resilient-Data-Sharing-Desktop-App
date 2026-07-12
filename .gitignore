@@ -22,3 +22,7 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# Benchmark-generated results and figures
+benchmark_results/
+src-tauri/benchmark_results/

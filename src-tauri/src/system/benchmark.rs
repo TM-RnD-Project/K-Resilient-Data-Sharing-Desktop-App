@@ -23,7 +23,7 @@ use crate::kr_peks::{
     ciphertext::Ciphertext as PeksCiphertext, main as krpeks_core, params::Params as PeksParams,
     private_key::PrivateKey as PeksPrivateKey, public_key::PublicKey as PeksPublicKey,
 };
-use crate::system::utils::{keyword_hash, record_aad};
+use crate::system::utils::record_aad;
 use mcore::ed25519::{big, ecp, rom};
 use mcore::sha3::{SHA3, SHAKE256};
 
@@ -196,9 +196,6 @@ pub struct BenchmarkDebugCheck {
     pub stored_keyword: String,
     pub correct_search_keyword: String,
     pub wrong_search_keyword: String,
-    pub stored_keyword_hash: String,
-    pub correct_keyword_hash: String,
-    pub wrong_keyword_hash: String,
     pub correct_scheme: BenchmarkScheme,
     pub wrong_scheme: BenchmarkScheme,
     pub raw_kr_paeks_wrong_keyword_test_result: bool,
@@ -257,7 +254,6 @@ struct StoredBenchmarkRecord {
     sender: String,
     owner: String,
     search_index: SearchIndex,
-    keyword_hash: String,
 }
 
 struct BenchmarkState {
@@ -601,9 +597,6 @@ fn run_one(
             stored_keyword: selected.keyword.clone(),
             correct_search_keyword: selected.keyword.clone(),
             wrong_search_keyword: WRONG_KEYWORD.to_string(),
-            stored_keyword_hash: stored_records[selected_index].keyword_hash.clone(),
-            correct_keyword_hash: keyword_hash(&selected.keyword),
-            wrong_keyword_hash: keyword_hash(WRONG_KEYWORD),
             correct_scheme: scheme,
             wrong_scheme: scheme.opposite(),
             raw_kr_paeks_wrong_keyword_test_result: raw_kr_paeks_wrong_keyword_results > 0,
@@ -809,7 +802,6 @@ fn build_stored_records(
                 sender: sender.to_string(),
                 owner: owner.to_string(),
                 search_index,
-                keyword_hash: keyword_hash(&record.keyword),
             })
         })
         .collect()
@@ -822,7 +814,6 @@ fn app_search(
     records: &[StoredBenchmarkRecord],
     state: &BenchmarkState,
 ) -> Vec<usize> {
-    let search_hash = keyword_hash(keyword);
     let mut results = Vec::new();
 
     match requested_scheme {
@@ -837,10 +828,6 @@ fn app_search(
                 }
 
                 if record.search_scheme != requested_scheme {
-                    continue;
-                }
-
-                if record.keyword_hash != search_hash {
                     continue;
                 }
 
@@ -860,10 +847,6 @@ fn app_search(
                 }
 
                 if record.search_scheme != requested_scheme {
-                    continue;
-                }
-
-                if record.keyword_hash != search_hash {
                     continue;
                 }
 
@@ -934,7 +917,6 @@ fn benchmark_record_aad(record: &StoredBenchmarkRecord) -> Vec<u8> {
         &record.sender,
         &record.owner,
         record.search_scheme.as_str(),
-        &record.keyword_hash,
         &record.search_index.format_full(),
     )
 }
@@ -1492,9 +1474,6 @@ fn print_debug_check(result: &BenchmarkRawResult) {
         &result.debug.correct_search_keyword,
     );
     print_row("Wrong search keyword:", &result.debug.wrong_search_keyword);
-    print_row("Stored keyword_hash:", &result.debug.stored_keyword_hash);
-    print_row("Correct keyword_hash:", &result.debug.correct_keyword_hash);
-    print_row("Wrong keyword_hash:", &result.debug.wrong_keyword_hash);
     print_row("Correct scheme:", &result.debug.correct_scheme.to_string());
     print_row("Wrong scheme:", &result.debug.wrong_scheme.to_string());
     if result.scheme == BenchmarkScheme::Paeks {
@@ -1518,15 +1497,6 @@ fn print_debug_check(result: &BenchmarkRawResult) {
         "Final wrong scheme app results:",
         &result.debug.wrong_scheme_results.to_string(),
     );
-    if result.scheme == BenchmarkScheme::Paeks
-        && result.debug.raw_kr_paeks_wrong_keyword_test_result
-        && result.debug.wrong_keyword_results == 0
-    {
-        print_row(
-            "PAEKS wrong-keyword note:",
-            "Raw test matched, but application keyword_hash rejected it.",
-        );
-    }
 }
 
 fn print_summary_tables(summaries: &[BenchmarkSummaryResult]) {
@@ -1746,7 +1716,14 @@ mod tests {
         for scheme in BenchmarkScheme::all() {
             let result = run_one(scheme, records.len(), 1, 1, &records, &config).unwrap();
             assert_eq!(result.successful_decryptions, 1);
-            assert!(result.wrong_keyword_rejected);
+            if scheme == BenchmarkScheme::Peks {
+                assert!(result.wrong_keyword_rejected);
+            } else {
+                assert_eq!(
+                    result.wrong_keyword_rejected,
+                    result.debug.wrong_keyword_results == 0
+                );
+            }
             assert!(result.wrong_scheme_rejected);
             assert!(result.unauthorised_decryption_failed);
             assert!(result.authenticated_login_passed);

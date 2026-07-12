@@ -35,7 +35,6 @@ pub fn download(user: &str, index: usize) -> Result<SharedPayload, String> {
         &data.sender,
         &data.owner,
         data.search_scheme.as_str(),
-        &data.keyword_hash,
         &data.search_index.format_full(),
     );
 
