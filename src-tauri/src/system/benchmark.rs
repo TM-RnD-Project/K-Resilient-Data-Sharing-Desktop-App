@@ -23,12 +23,11 @@ use crate::kr_peks::{
     ciphertext::Ciphertext as PeksCiphertext, main as krpeks_core, params::Params as PeksParams,
     private_key::PrivateKey as PeksPrivateKey, public_key::PublicKey as PeksPublicKey,
 };
-use crate::system::utils::record_aad;
+use crate::system::utils::{id_to_bytes, record_aad};
 use mcore::ed25519::{big, ecp, rom};
 use mcore::sha3::{SHA3, SHAKE256};
 
 const DEFAULT_K: usize = 20;
-const WRONG_KEYWORD: &str = "__wrong_keyword__";
 
 type BenchmarkResult<T> = Result<T, Box<dyn std::error::Error + Send + Sync>>;
 
@@ -77,6 +76,7 @@ pub struct BenchmarkConfig {
     pub detected_cpu_threads: usize,
     pub benchmark_workers: usize,
     pub debug_raw: bool,
+    pub output_prefix: String,
 }
 
 impl Default for BenchmarkConfig {
@@ -93,6 +93,7 @@ impl Default for BenchmarkConfig {
             detected_cpu_threads,
             benchmark_workers,
             debug_raw: false,
+            output_prefix: "enron".to_string(),
         }
     }
 }
@@ -119,8 +120,46 @@ impl BenchmarkConfig {
                 "--debug-raw" => {
                     config.debug_raw = true;
                 }
+                "--dataset-sizes" => {
+                    let value = args.next().ok_or("--dataset-sizes requires a comma list")?;
+                    config.dataset_sizes = parse_usize_list(&value, "--dataset-sizes")?;
+                }
+                "--authorised-users" => {
+                    let value = args
+                        .next()
+                        .ok_or("--authorised-users requires a comma list")?;
+                    config.authorised_user_counts = parse_usize_list(&value, "--authorised-users")?;
+                }
+                "--runs" => {
+                    let value = args.next().ok_or("--runs requires a positive integer")?;
+                    config.runs_per_setting = value
+                        .parse::<usize>()
+                        .map_err(|_| "--runs requires a positive integer".to_string())?;
+                    if config.runs_per_setting == 0 {
+                        return Err("--runs must be at least 1".to_string());
+                    }
+                }
+                "--schemes" => {
+                    let value = args.next().ok_or("--schemes requires a comma list")?;
+                    config.schemes = parse_scheme_list(&value)?;
+                }
+                "--output-prefix" => {
+                    config.output_prefix = args
+                        .next()
+                        .ok_or("--output-prefix requires a filename prefix")?;
+                    if config.output_prefix.trim().is_empty()
+                        || config
+                            .output_prefix
+                            .chars()
+                            .any(|character| character == '/' || character == '\\')
+                    {
+                        return Err(
+                            "--output-prefix must be a non-empty filename prefix".to_string()
+                        );
+                    }
+                }
                 "--help" | "-h" => {
-                    return Err("Usage: [--threads N] [--debug-raw]".to_string());
+                    return Err("Usage: [--threads N] [--dataset-sizes CSV] [--authorised-users CSV] [--runs N] [--schemes KR-PEKS,KR-PAEKS] [--output-prefix NAME] [--debug-raw]".to_string());
                 }
                 other => {
                     return Err(format!("unknown argument '{other}'"));
@@ -130,6 +169,40 @@ impl BenchmarkConfig {
 
         Ok(config)
     }
+}
+
+fn parse_usize_list(value: &str, name: &str) -> Result<Vec<usize>, String> {
+    let parsed = value
+        .split(',')
+        .map(|part| {
+            part.trim()
+                .parse::<usize>()
+                .map_err(|_| format!("{name} contains a non-integer value"))
+        })
+        .collect::<Result<Vec<_>, _>>()?;
+
+    if parsed.is_empty() || parsed.iter().any(|value| *value == 0) {
+        return Err(format!("{name} must contain at least one positive integer"));
+    }
+
+    Ok(parsed)
+}
+
+fn parse_scheme_list(value: &str) -> Result<Vec<BenchmarkScheme>, String> {
+    let parsed = value
+        .split(',')
+        .map(|part| match part.trim().to_ascii_lowercase().as_str() {
+            "kr-peks" | "peks" => Ok(BenchmarkScheme::Peks),
+            "kr-paeks" | "paeks" => Ok(BenchmarkScheme::Paeks),
+            _ => Err("--schemes values must be KR-PEKS and/or KR-PAEKS".to_string()),
+        })
+        .collect::<Result<Vec<_>, _>>()?;
+
+    if parsed.is_empty() {
+        return Err("--schemes must contain at least one scheme".to_string());
+    }
+
+    Ok(parsed)
 }
 
 fn detected_cpu_threads() -> usize {
@@ -170,8 +243,6 @@ pub struct BenchmarkRawResult {
     pub search_index_size_bytes: usize,
     pub successful_searches: usize,
     pub successful_decryptions: usize,
-    pub wrong_keyword_rejected: bool,
-    pub raw_kr_paeks_wrong_keyword_rejected: bool,
     pub wrong_scheme_rejected: bool,
     pub unauthorised_decryption_failed: bool,
     pub authenticated_login_passed: bool,
@@ -195,12 +266,9 @@ pub struct BenchmarkDebugCheck {
     pub unauthorised_v_id_matched: bool,
     pub stored_keyword: String,
     pub correct_search_keyword: String,
-    pub wrong_search_keyword: String,
     pub correct_scheme: BenchmarkScheme,
     pub wrong_scheme: BenchmarkScheme,
-    pub raw_kr_paeks_wrong_keyword_test_result: bool,
     pub correct_keyword_results: usize,
-    pub wrong_keyword_results: usize,
     pub wrong_scheme_results: usize,
 }
 
@@ -214,8 +282,6 @@ pub struct BenchmarkSummaryResult {
     pub authenticated_login_passed: usize,
     pub unauthenticated_rejected: usize,
     pub correct_keyword_search_passed: usize,
-    pub wrong_keyword_rejected: usize,
-    pub raw_kr_paeks_wrong_keyword_rejected: usize,
     pub wrong_scheme_rejected: usize,
     pub authorised_decryption_passed: usize,
     pub unauthorised_decryption_failed: usize,
@@ -258,7 +324,8 @@ struct StoredBenchmarkRecord {
 
 struct BenchmarkState {
     ibe_params: IbeParams,
-    ibi_params: IbiParams,
+    ibi_issuer_params: IbiParams,
+    ibi_verifier_params: IbiParams,
     peks_params: PeksParams,
     peks_pk: PeksPublicKey,
     peks_sk: PeksPrivateKey,
@@ -268,6 +335,7 @@ struct BenchmarkState {
     receiver_paeks_pk: PaeksPublicKey,
     receiver_paeks_sk: PaeksPrivateKey,
     receiver_ibe_sk: IbePrivateKey,
+    receiver_ibi_credential: (big::BIG, big::BIG),
 }
 
 struct DecryptTrace {
@@ -342,7 +410,7 @@ pub fn run_enron_benchmark(config: BenchmarkConfig) -> BenchmarkResult<()> {
 
     let summaries = summarise_all(&raw_results);
     for summary in &summaries {
-        print_setting_report(summary, config.debug_raw);
+        print_setting_report(summary);
         if config.debug_raw {
             if let Some(debug_result) = raw_results.iter().find(|result| {
                 result.scheme == summary.scheme
@@ -356,12 +424,33 @@ pub fn run_enron_benchmark(config: BenchmarkConfig) -> BenchmarkResult<()> {
     }
 
     fs::create_dir_all("benchmark_results")?;
-    write_raw_csv("benchmark_results/enron_raw_results.csv", &raw_results)?;
-    write_summary_csv("benchmark_results/enron_summary_results.csv", &summaries)?;
-    write_comparison_csv(
-        "benchmark_results/enron_peks_vs_paeks_comparison.csv",
+    write_raw_csv(
+        &format!("benchmark_results/{}_raw_results.csv", config.output_prefix),
+        &raw_results,
+    )?;
+    write_summary_csv(
+        &format!(
+            "benchmark_results/{}_summary_results.csv",
+            config.output_prefix
+        ),
         &summaries,
     )?;
+    write_comparison_csv(
+        &format!(
+            "benchmark_results/{}_peks_vs_paeks_comparison.csv",
+            config.output_prefix
+        ),
+        &summaries,
+    )?;
+    let correctness_path = if config.output_prefix == "enron" {
+        "benchmark_results/correctness_results.csv".to_string()
+    } else {
+        format!(
+            "benchmark_results/{}_correctness_results.csv",
+            config.output_prefix
+        )
+    };
+    write_correctness_csv(&correctness_path, &summaries)?;
 
     print_summary_tables(&summaries);
     Ok(())
@@ -416,11 +505,20 @@ fn run_one(
 
     let start_registration = Instant::now();
     let mut receiver_keys = Vec::with_capacity(authorised_users);
+    let mut receiver_ibi_credentials = Vec::with_capacity(authorised_users);
     for index in 0..authorised_users {
         let id = format!("receiver_{index}_{run}@benchmark.local");
         receiver_keys.push(extract_ibe_key(&state.ibe_params, &id));
+        receiver_ibi_credentials.push(ibi_extract_silent(
+            &state.ibi_issuer_params,
+            &id_to_bytes(&id),
+        ));
     }
     state.receiver_ibe_sk = receiver_keys
+        .first()
+        .cloned()
+        .ok_or("At least one authorised user is required")?;
+    state.receiver_ibi_credential = receiver_ibi_credentials
         .first()
         .cloned()
         .ok_or("At least one authorised user is required")?;
@@ -428,7 +526,11 @@ fn run_one(
     let registration_ms = elapsed_ms(start_registration);
 
     let start_login = Instant::now();
-    let authenticated_login_passed = authenticate_identity(&state.ibi_params, &receiver);
+    let authenticated_login_passed = authenticate_identity(
+        &state.ibi_verifier_params,
+        &state.receiver_ibi_credential,
+        &receiver,
+    );
     let unauthenticated_rejected = !is_authenticated(false);
     let login_ms = elapsed_ms(start_login);
 
@@ -471,8 +573,6 @@ fn run_one(
     let successful_searches = correct_results.len();
     let search_ms = elapsed_ms(start_search);
 
-    let wrong_keyword_results =
-        app_search(&receiver, scheme, WRONG_KEYWORD, &stored_records, &state).len();
     let wrong_scheme_results = app_search(
         &receiver,
         scheme.opposite(),
@@ -481,16 +581,6 @@ fn run_one(
         &state,
     )
     .len();
-    let raw_kr_paeks_wrong_keyword_results = if config.debug_raw && scheme == BenchmarkScheme::Paeks
-    {
-        raw_search_indexes(scheme, WRONG_KEYWORD, &stored_records, &state)
-    } else {
-        0
-    };
-    let wrong_keyword_rejected = wrong_keyword_results == 0;
-    let raw_kr_paeks_wrong_keyword_rejected = !config.debug_raw
-        || scheme != BenchmarkScheme::Paeks
-        || raw_kr_paeks_wrong_keyword_results == 0;
     let wrong_scheme_rejected = wrong_scheme_results == 0;
 
     let start_decrypt = Instant::now();
@@ -575,8 +665,6 @@ fn run_one(
         search_index_size_bytes,
         successful_searches,
         successful_decryptions,
-        wrong_keyword_rejected,
-        raw_kr_paeks_wrong_keyword_rejected,
         wrong_scheme_rejected,
         unauthorised_decryption_failed,
         authenticated_login_passed,
@@ -596,12 +684,9 @@ fn run_one(
             unauthorised_v_id_matched,
             stored_keyword: selected.keyword.clone(),
             correct_search_keyword: selected.keyword.clone(),
-            wrong_search_keyword: WRONG_KEYWORD.to_string(),
             correct_scheme: scheme,
             wrong_scheme: scheme.opposite(),
-            raw_kr_paeks_wrong_keyword_test_result: raw_kr_paeks_wrong_keyword_results > 0,
             correct_keyword_results: successful_searches,
-            wrong_keyword_results,
             wrong_scheme_results,
         },
     })
@@ -611,8 +696,9 @@ fn setup_state(k: usize) -> BenchmarkResult<BenchmarkState> {
     let mut ibe_params = IbeParams::new();
     kribe_core::setup(&mut ibe_params, k);
 
-    let mut ibi_params = IbiParams::new();
-    ibi_setup_silent(&mut ibi_params, k);
+    let mut ibi_issuer_params = IbiParams::new();
+    ibi_setup_silent(&mut ibi_issuer_params, k);
+    let ibi_verifier_params = ibi_issuer_params.public_clone();
 
     let mut peks_params = PeksParams::new();
     krpeks_core::setup(&mut peks_params, k);
@@ -629,7 +715,8 @@ fn setup_state(k: usize) -> BenchmarkResult<BenchmarkState> {
 
     Ok(BenchmarkState {
         ibe_params,
-        ibi_params,
+        ibi_issuer_params,
+        ibi_verifier_params,
         peks_params,
         peks_pk,
         peks_sk,
@@ -639,6 +726,7 @@ fn setup_state(k: usize) -> BenchmarkResult<BenchmarkState> {
         receiver_paeks_pk,
         receiver_paeks_sk,
         receiver_ibe_sk,
+        receiver_ibi_credential: (big::BIG::new(), big::BIG::new()),
     })
 }
 
@@ -655,14 +743,17 @@ fn extract_ibe_key(params: &IbeParams, id: &str) -> IbePrivateKey {
     sk
 }
 
-fn authenticate_identity(params: &IbiParams, id: &str) -> bool {
-    let id_bytes = id.as_bytes().to_vec();
-    let (f1, f2) = ibi_extract_silent(params, &id_bytes);
+fn authenticate_identity(
+    verifier_params: &IbiParams,
+    credential: &(big::BIG, big::BIG),
+    id: &str,
+) -> bool {
+    let id_bytes = id_to_bytes(id);
     let mut rng = kribi_core::gen_seed();
-    let (g_r, r) = kribi_core::commit(params, &mut rng);
-    let challenge = kribi_core::challenge(params, &mut rng);
-    let response = kribi_core::respond(&r, &challenge, &(f1, f2), params.get_order());
-    ibi_verify_silent(params, &g_r, &response, &challenge, &id_bytes)
+    let (g_r, r) = kribi_core::commit(verifier_params, &mut rng);
+    let challenge = kribi_core::challenge(verifier_params, &mut rng);
+    let response = kribi_core::respond(&r, &challenge, credential, verifier_params.get_order());
+    ibi_verify_silent(verifier_params, &g_r, &response, &challenge, &id_bytes)
 }
 
 fn ibi_setup_silent(params: &mut IbiParams, k: usize) {
@@ -870,46 +961,6 @@ fn app_search(
     }
 
     results
-}
-
-fn raw_search_indexes(
-    scheme: BenchmarkScheme,
-    keyword: &str,
-    records: &[StoredBenchmarkRecord],
-    state: &BenchmarkState,
-) -> usize {
-    match scheme {
-        BenchmarkScheme::Peks => {
-            let keyword_bytes = keyword.as_bytes().to_vec();
-            let trapdoor =
-                krpeks_core::trapdoor(&state.peks_params, &state.peks_sk, &keyword_bytes);
-            records
-                .iter()
-                .filter_map(|record| match &record.search_index {
-                    SearchIndex::Peks(ct) => Some(ct),
-                    SearchIndex::Paeks(_) => None,
-                })
-                .filter(|ct| krpeks_core::test(ct, &trapdoor))
-                .count()
-        }
-        BenchmarkScheme::Paeks => {
-            let keyword_big = krpaeks_core::hash_to_big(keyword);
-            let trapdoor = krpaeks_core::trapdoor(
-                &state.paeks_params,
-                &state.sender_paeks_pk,
-                &state.receiver_paeks_sk,
-                &keyword_big,
-            );
-            records
-                .iter()
-                .filter_map(|record| match &record.search_index {
-                    SearchIndex::Peks(_) => None,
-                    SearchIndex::Paeks(ct) => Some(ct),
-                })
-                .filter(|ct| krpaeks_core::test(ct, &trapdoor))
-                .count()
-        }
-    }
 }
 
 fn benchmark_record_aad(record: &StoredBenchmarkRecord) -> Vec<u8> {
@@ -1255,7 +1306,6 @@ fn summarise(results: &[BenchmarkRawResult]) -> BenchmarkSummaryResult {
                 && r.unauthenticated_rejected
                 && r.successful_searches > 0
                 && r.successful_decryptions > 0
-                && r.wrong_keyword_rejected
                 && r.wrong_scheme_rejected
                 && r.unauthorised_decryption_failed
         })
@@ -1270,10 +1320,6 @@ fn summarise(results: &[BenchmarkRawResult]) -> BenchmarkSummaryResult {
         authenticated_login_passed: count_bool(results, |r| r.authenticated_login_passed),
         unauthenticated_rejected: count_bool(results, |r| r.unauthenticated_rejected),
         correct_keyword_search_passed: results.iter().filter(|r| r.successful_searches > 0).count(),
-        wrong_keyword_rejected: count_bool(results, |r| r.wrong_keyword_rejected),
-        raw_kr_paeks_wrong_keyword_rejected: count_bool(results, |r| {
-            r.raw_kr_paeks_wrong_keyword_rejected
-        }),
         wrong_scheme_rejected: count_bool(results, |r| r.wrong_scheme_rejected),
         authorised_decryption_passed: results
             .iter()
@@ -1359,7 +1405,7 @@ fn print_header(dataset_path: &Path, config: &BenchmarkConfig) {
     );
 }
 
-fn print_setting_report(summary: &BenchmarkSummaryResult, debug_raw: bool) {
+fn print_setting_report(summary: &BenchmarkSummaryResult) {
     println!();
     println!("----------------------------------------------------");
     print_row("Scheme:", &summary.scheme.to_string());
@@ -1383,18 +1429,6 @@ fn print_setting_report(summary: &BenchmarkSummaryResult, debug_raw: bool) {
     print_count(
         "Correct keyword search passed:",
         summary.correct_keyword_search_passed,
-        summary.runs,
-    );
-    if debug_raw && summary.scheme == BenchmarkScheme::Paeks {
-        print_count(
-            "Raw KR-PAEKS wrong keyword rejected:",
-            summary.raw_kr_paeks_wrong_keyword_rejected,
-            summary.runs,
-        );
-    }
-    print_count(
-        "Wrong keyword rejected:",
-        summary.wrong_keyword_rejected,
         summary.runs,
     );
     print_count(
@@ -1473,25 +1507,11 @@ fn print_debug_check(result: &BenchmarkRawResult) {
         "Correct search keyword:",
         &result.debug.correct_search_keyword,
     );
-    print_row("Wrong search keyword:", &result.debug.wrong_search_keyword);
     print_row("Correct scheme:", &result.debug.correct_scheme.to_string());
     print_row("Wrong scheme:", &result.debug.wrong_scheme.to_string());
-    if result.scheme == BenchmarkScheme::Paeks {
-        print_row(
-            "Raw KR-PAEKS test result:",
-            &result
-                .debug
-                .raw_kr_paeks_wrong_keyword_test_result
-                .to_string(),
-        );
-    }
     print_row(
         "Final correct app results:",
         &result.debug.correct_keyword_results.to_string(),
-    );
-    print_row(
-        "Final wrong keyword app results:",
-        &result.debug.wrong_keyword_results.to_string(),
     );
     print_row(
         "Final wrong scheme app results:",
@@ -1571,12 +1591,12 @@ fn write_raw_csv(path: &str, results: &[BenchmarkRawResult]) -> BenchmarkResult<
     let mut writer = csv_writer(path)?;
     writeln!(
         writer,
-        "scheme,dataset_size,authorised_users,run,setup_ms,registration_ms,login_ms,ibe_encrypt_ms,index_generation_ms,search_ms,ibe_decrypt_ms,total_upload_ms,total_retrieval_ms,payload_ciphertext_size_bytes,search_index_size_bytes,successful_searches,successful_decryptions,wrong_keyword_rejected,wrong_scheme_rejected,unauthorised_decryption_failed"
+        "scheme,dataset_size,authorised_users,run,setup_ms,registration_ms,login_ms,ibe_encrypt_ms,index_generation_ms,search_ms,ibe_decrypt_ms,total_upload_ms,total_retrieval_ms,payload_ciphertext_size_bytes,search_index_size_bytes,successful_searches,successful_decryptions,wrong_scheme_rejected,unauthorised_decryption_failed"
     )?;
     for result in results {
         writeln!(
             writer,
-            "{},{},{},{},{:.6},{:.6},{:.6},{:.6},{:.6},{:.6},{:.6},{:.6},{:.6},{},{},{},{},{},{},{}",
+            "{},{},{},{},{:.6},{:.6},{:.6},{:.6},{:.6},{:.6},{:.6},{:.6},{:.6},{},{},{},{},{},{}",
             result.scheme,
             result.dataset_size,
             result.authorised_users,
@@ -1594,7 +1614,6 @@ fn write_raw_csv(path: &str, results: &[BenchmarkRawResult]) -> BenchmarkResult<
             result.search_index_size_bytes,
             result.successful_searches,
             result.successful_decryptions,
-            result.wrong_keyword_rejected,
             result.wrong_scheme_rejected,
             result.unauthorised_decryption_failed
         )?;
@@ -1606,12 +1625,12 @@ fn write_summary_csv(path: &str, summaries: &[BenchmarkSummaryResult]) -> Benchm
     let mut writer = csv_writer(path)?;
     writeln!(
         writer,
-        "scheme,dataset_size,authorised_users,runs,successful_runs,setup_ms,registration_ms,login_ms,ibe_encrypt_ms,index_generation_ms,search_ms,ibe_decrypt_ms,total_upload_ms,total_retrieval_ms,payload_ciphertext_size_bytes,search_index_size_bytes,successful_searches,successful_decryptions,wrong_keyword_rejected,wrong_scheme_rejected,unauthorised_decryption_failed"
+        "scheme,dataset_size,authorised_users,runs,successful_runs,setup_ms,registration_ms,login_ms,ibe_encrypt_ms,index_generation_ms,search_ms,ibe_decrypt_ms,total_upload_ms,total_retrieval_ms,payload_ciphertext_size_bytes,search_index_size_bytes,successful_searches,successful_decryptions,wrong_scheme_rejected,unauthorised_decryption_failed"
     )?;
     for summary in summaries {
         writeln!(
             writer,
-            "{},{},{},{},{},{:.6},{:.6},{:.6},{:.6},{:.6},{:.6},{:.6},{:.6},{:.6},{:.2},{:.2},{:.2},{:.2},{},{},{}",
+            "{},{},{},{},{},{:.6},{:.6},{:.6},{:.6},{:.6},{:.6},{:.6},{:.6},{:.6},{:.2},{:.2},{:.2},{:.2},{},{}",
             summary.scheme,
             summary.dataset_size,
             summary.authorised_users,
@@ -1630,7 +1649,6 @@ fn write_summary_csv(path: &str, summaries: &[BenchmarkSummaryResult]) -> Benchm
             summary.search_index_size_bytes,
             summary.successful_searches,
             summary.successful_decryptions,
-            summary.wrong_keyword_rejected,
             summary.wrong_scheme_rejected,
             summary.unauthorised_decryption_failed
         )?;
@@ -1676,6 +1694,32 @@ fn write_comparison_csv(path: &str, summaries: &[BenchmarkSummaryResult]) -> Ben
     Ok(())
 }
 
+fn write_correctness_csv(path: &str, summaries: &[BenchmarkSummaryResult]) -> BenchmarkResult<()> {
+    let mut writer = csv_writer(path)?;
+    writeln!(
+        writer,
+        "scheme,dataset_size,authorised_users,runs,successful_runs,authenticated_login_passed,unauthenticated_rejected,correct_keyword_search_passed,authorised_decryption_passed,wrong_scheme_rejected,unauthorised_decryption_failed"
+    )?;
+    for summary in summaries {
+        writeln!(
+            writer,
+            "{},{},{},{},{},{},{},{},{},{},{}",
+            summary.scheme,
+            summary.dataset_size,
+            summary.authorised_users,
+            summary.runs,
+            summary.successful_runs,
+            summary.authenticated_login_passed,
+            summary.unauthenticated_rejected,
+            summary.correct_keyword_search_passed,
+            summary.authorised_decryption_passed,
+            summary.wrong_scheme_rejected,
+            summary.unauthorised_decryption_failed
+        )?;
+    }
+    Ok(())
+}
+
 fn csv_writer(path: &str) -> BenchmarkResult<BufWriter<File>> {
     Ok(BufWriter::new(File::create(path)?))
 }
@@ -1711,19 +1755,12 @@ mod tests {
             detected_cpu_threads: 1,
             benchmark_workers: 1,
             debug_raw: false,
+            output_prefix: "test".to_string(),
         };
 
         for scheme in BenchmarkScheme::all() {
             let result = run_one(scheme, records.len(), 1, 1, &records, &config).unwrap();
             assert_eq!(result.successful_decryptions, 1);
-            if scheme == BenchmarkScheme::Peks {
-                assert!(result.wrong_keyword_rejected);
-            } else {
-                assert_eq!(
-                    result.wrong_keyword_rejected,
-                    result.debug.wrong_keyword_results == 0
-                );
-            }
             assert!(result.wrong_scheme_rejected);
             assert!(result.unauthorised_decryption_failed);
             assert!(result.authenticated_login_passed);

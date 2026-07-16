@@ -33,13 +33,15 @@ For each record, the benchmark uses the first alphabetic word from an embedded `
 Run the complete benchmark from `src-tauri/`:
 
 ```bash
-cargo run --release --bin enron_benchmark -- --threads 8
+cargo clean
+cargo build --release --bin enron_benchmark
+cargo run --release --bin enron_benchmark -- --threads 16
 ```
 
 Add raw diagnostic checks with:
 
 ```bash
-cargo run --release --bin enron_benchmark -- --threads 8 --debug-raw
+cargo run --release --bin enron_benchmark -- --threads 16 --debug-raw
 ```
 
 The default matrix uses dataset sizes 100, 500, 1,000, 5,000, and 10,000; authorized-user counts 1, 5, 10, and 20; 100 runs per setting; and both KR-PEKS and KR-PAEKS. Records are constructed programmatically using the same backend cryptographic routines as the desktop application. The selected retrieval record uses AES-GCM record-context binding; non-selected records use placeholder payload ciphertexts because only their searchable indexes are needed for scaling measurements.
@@ -49,5 +51,7 @@ Generated measurements are written to:
 - `benchmark_results/enron_raw_results.csv`
 - `benchmark_results/enron_summary_results.csv`
 - `benchmark_results/enron_peks_vs_paeks_comparison.csv`
+- `benchmark_results/correctness_results.csv`
+- `benchmark_results/run_metadata.txt`
 
-The repository also includes the available plotted benchmark outputs under `benchmark_results/figures/`.
+Thread-selection pilot evidence is kept separately in `benchmark_results/thread_scaling_pilot.csv` and `benchmark_results/thread_scaling_pilot_metadata.txt`. The repository also includes the available plotted benchmark outputs under `benchmark_results/figures/`.

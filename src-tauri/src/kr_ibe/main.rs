@@ -12,8 +12,7 @@ use aes_gcm::{
     aead::{Aead, KeyInit, OsRng, Payload},
     Aes256Gcm, Nonce,
 };
-use generic_array::typenum::U32;
-use generic_array::GenericArray;
+use hkdf::Hkdf;
 use mcore::ed25519::big;
 use mcore::ed25519::big::MODBYTES;
 use mcore::ed25519::ecdh;
@@ -22,6 +21,8 @@ use mcore::ed25519::rom;
 use mcore::rand::RAND;
 use mcore::sha3::{SHA3, SHAKE256};
 use rand::RngCore;
+use sha2::Sha256;
+use zeroize::Zeroize;
 
 use std::time::Instant;
 
@@ -171,39 +172,36 @@ pub fn encryption_with_aad(
     let s = D_id.mul(&r1);
 
     // AES-GCM Encryption Start
-    // Generate a random AES key
-    let key = Aes256Gcm::generate_key(OsRng); //32 bytes
-
-    //convert key to ecp in order to be encrypted by IBE
-    let ecp_key = ecp::ECP::mapit(&key);
+    // Generate fresh 256-bit randomness and map it to the KR-IBE-protected group element X.
+    let mut x_seed = [0u8; 32];
+    OsRng.fill_bytes(&mut x_seed);
+    let ecp_key = ecp::ECP::mapit(&x_seed);
+    x_seed.zeroize();
     let mut bytes_ecp_key: Vec<u8> = vec![0; MODBYTES + 1];
     ecp_key.tobytes(&mut bytes_ecp_key, true);
 
-    //split the AES key, first 32 bytes to be key, last 12 bytes to be the nonce (maybe overlap)
-    let (aes_key, aes_nonce) = split_key_nonce(&bytes_ecp_key);
-
-    // Convert Vec<u8> to GenericArray
-    let generic_key = vec_to_generic_array(aes_key); //32 bytes
-    let cipher = Aes256Gcm::new(&generic_key);
-
-    // Nonce (must be unique for every encryption operation)
-    let nonce = Nonce::from_slice(&aes_nonce); // 12 bytes
+    let mut aes_material = derive_aes_gcm_material(&bytes_ecp_key, aad)?;
+    let cipher = Aes256Gcm::new_from_slice(&aes_material.key)
+        .map_err(|_| "AES-256-GCM key derivation failed.".to_string())?;
+    let nonce = Nonce::from_slice(&aes_material.nonce);
 
     // AES Encrypt message m
-    let aes_ciphertext = cipher
-        .encrypt(
-            nonce,
-            Payload {
-                msg: m.as_ref(),
-                aad,
-            },
-        )
-        .map_err(|_| "AES-GCM payload encryption failed.".to_string())?;
+    let aes_ciphertext_result = cipher.encrypt(
+        nonce,
+        Payload {
+            msg: m.as_ref(),
+            aad,
+        },
+    );
+    aes_material.zeroize();
+    let aes_ciphertext =
+        aes_ciphertext_result.map_err(|_| "AES-GCM payload encryption failed.".to_string())?;
 
     // AES-GCM Encryption End
 
     //E6
     let mut temp_m = ecp::ECP::frombytes(&bytes_ecp_key);
+    bytes_ecp_key.zeroize();
     temp_m.add(&s);
     let c = temp_m;
 
@@ -296,25 +294,23 @@ pub fn decryption_with_aad(
         let mut recovered_key = vec![0; MODBYTES + 1];
         temp_c.tobytes(&mut recovered_key, true);
 
-        // Split the recovered AES key into aes_key and aes_nonce
-        let (aes_key, aes_nonce) = split_key_nonce(&recovered_key);
+        let mut aes_material = derive_aes_gcm_material(&recovered_key, aad)?;
+        recovered_key.zeroize();
 
-        // Convert Vec<u8> to GenericArray
-        let generic_key = vec_to_generic_array(aes_key); //32 bytes
-
-        let cipher = Aes256Gcm::new(&generic_key);
-
-        let nonce = Nonce::from_slice(&aes_nonce); // 12 bytes
+        let cipher = Aes256Gcm::new_from_slice(&aes_material.key)
+            .map_err(|_| "AES-256-GCM key derivation failed.".to_string())?;
+        let nonce = Nonce::from_slice(&aes_material.nonce);
 
         // Decrypt the AES ciphertext
-        let decrypted_plaintext = cipher
-            .decrypt(
-                nonce,
-                Payload {
-                    msg: aes_cipher.as_ref(),
-                    aad,
-                },
-            )
+        let decrypted_plaintext_result = cipher.decrypt(
+            nonce,
+            Payload {
+                msg: aes_cipher.as_ref(),
+                aad,
+            },
+        );
+        aes_material.zeroize();
+        let decrypted_plaintext = decrypted_plaintext_result
             .map_err(|_| "AES-GCM payload authentication failed.".to_string())?;
 
         // Convert the decrypted plaintext from Vec<u8> to String
@@ -409,15 +405,44 @@ fn hash_ECP_to_big(input: ecp::ECP) -> big::BIG {
     big::BIG::frombytes(&output)
 }
 
-fn split_key_nonce(key_nonce: &[u8]) -> (Vec<u8>, Vec<u8>) {
-    let aes_key = key_nonce[0..32].to_vec(); // First 32 bytes
-    let aes_nonce = key_nonce[key_nonce.len() - 12..key_nonce.len()].to_vec(); // Last 12 bytes
-
-    (aes_key, aes_nonce)
+#[derive(Clone, Debug, Eq, PartialEq)]
+pub struct AesGcmMaterial {
+    pub key: [u8; 32],
+    pub nonce: [u8; 12],
 }
 
-fn vec_to_generic_array(vec: Vec<u8>) -> GenericArray<u8, U32> {
-    generic_array::GenericArray::from_slice(&vec).clone()
+impl Zeroize for AesGcmMaterial {
+    fn zeroize(&mut self) {
+        self.key.zeroize();
+        self.nonce.zeroize();
+    }
+}
+
+pub fn derive_aes_gcm_material(encoded_x: &[u8], aad: &[u8]) -> Result<AesGcmMaterial, String> {
+    let okm = derive_aes_gcm_okm(encoded_x, aad)?;
+    let mut key = [0u8; 32];
+    let mut nonce = [0u8; 12];
+    key.copy_from_slice(&okm[0..32]);
+    nonce.copy_from_slice(&okm[32..44]);
+    Ok(AesGcmMaterial { key, nonce })
+}
+
+fn derive_aes_gcm_okm(encoded_x: &[u8], aad: &[u8]) -> Result<[u8; 44], String> {
+    let hk = Hkdf::<Sha256>::new(None, encoded_x);
+    let mut info = Vec::new();
+    append_length_encoded(&mut info, b"KR-IBE-AES-GCM-v1");
+    append_length_encoded(&mut info, aad);
+
+    let mut okm = [0u8; 44];
+    hk.expand(&info, &mut okm)
+        .map_err(|_| "HKDF-SHA-256 AES-GCM derivation failed.".to_string())?;
+    info.zeroize();
+    Ok(okm)
+}
+
+fn append_length_encoded(output: &mut Vec<u8>, value: &[u8]) {
+    output.extend_from_slice(&(value.len() as u64).to_be_bytes());
+    output.extend_from_slice(value);
 }
 
 fn string_to_bytes(input: &str) -> Vec<u8> {
@@ -443,6 +468,39 @@ mod tests {
         let mut plaintext = Plaintext::new();
         decryption_with_aad(params, sk, &mut ciphertext, &mut plaintext, aad)?;
         Ok(plaintext.to_string())
+    }
+
+    #[test]
+    fn hkdf_derivation_is_deterministic_context_bound_and_non_overlapping() {
+        let encoded_x = [7u8; MODBYTES + 1];
+        let other_x = [8u8; MODBYTES + 1];
+        let context_aad = aad(
+            "alice@example.test",
+            "receiver@example.test",
+            "peks",
+            "search-index-1",
+        );
+        let other_aad = aad(
+            "alice@example.test",
+            "receiver@example.test",
+            "paeks",
+            "search-index-1",
+        );
+
+        let first = derive_aes_gcm_material(&encoded_x, &context_aad).unwrap();
+        let second = derive_aes_gcm_material(&encoded_x, &context_aad).unwrap();
+        let different_x = derive_aes_gcm_material(&other_x, &context_aad).unwrap();
+        let different_aad = derive_aes_gcm_material(&encoded_x, &other_aad).unwrap();
+
+        assert_eq!(first, second);
+        assert_ne!(first, different_x);
+        assert_ne!(first, different_aad);
+        assert_eq!(first.key.len(), 32);
+        assert_eq!(first.nonce.len(), 12);
+
+        let okm = derive_aes_gcm_okm(&encoded_x, &context_aad).unwrap();
+        assert_eq!(first.key.as_slice(), &okm[0..32]);
+        assert_eq!(first.nonce.as_slice(), &okm[32..44]);
     }
 
     #[test]

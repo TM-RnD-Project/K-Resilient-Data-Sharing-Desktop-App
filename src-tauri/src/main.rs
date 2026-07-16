@@ -61,18 +61,35 @@ fn download_file(user: String, index: usize) -> Result<system::state::SharedPayl
 }
 
 #[tauri::command]
-fn login_start(id: String) -> Result<(String, String), String> {
+fn login_start(id: String) -> Result<auth::LoginChallengeResponse, String> {
     auth::login_start(&id)
 }
 
 #[tauri::command]
-fn login_respond(id: String) -> Result<(String, String), String> {
-    auth::login_respond(&id)
+fn login_respond(id: String, challenge_id: String) -> Result<auth::LoginProof, String> {
+    auth::login_respond(&id, &challenge_id)
 }
 
 #[tauri::command]
-fn login_verify(id: String, s1: String, s2: String) -> Result<bool, String> {
-    auth::login_verify(&id, &s1, &s2)
+fn login_verify(
+    id: String,
+    challenge_id: String,
+    commitment_1: String,
+    commitment_2: String,
+    s1: String,
+    s2: String,
+) -> Result<bool, String> {
+    auth::login_verify(&id, &challenge_id, &commitment_1, &commitment_2, &s1, &s2)
+}
+
+#[tauri::command]
+fn logout(id: String) -> Result<(), String> {
+    auth::logout(&id)
+}
+
+#[tauri::command]
+fn invalidate_session(id: String) -> Result<(), String> {
+    auth::invalidate_session(&id)
 }
 
 fn main() {
@@ -108,7 +125,9 @@ fn main() {
             download_file,
             login_start,
             login_respond,
-            login_verify
+            login_verify,
+            logout,
+            invalidate_session
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri app");

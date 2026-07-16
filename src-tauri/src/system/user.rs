@@ -1,4 +1,4 @@
-use crate::system::state::{PaeksKeyPair, APP_STATE};
+use crate::system::state::{IbiCredential, PaeksKeyPair, APP_STATE};
 use crate::system::utils::id_to_bytes;
 
 use crate::kr_ibe::{main as kribe_core, private_key::PrivateKey as IbePrivateKey};
@@ -25,10 +25,16 @@ pub fn register_user(id: &str) -> Result<String, String> {
         .as_ref()
         .ok_or("PAEKS params not initialised. Call setup_all() first.")?;
 
+    let ibi_issuer_params = state
+        .ibi_issuer_params
+        .as_ref()
+        .ok_or("IBI issuer params not initialised. Call setup_all() first.")?;
+
     let mut ibe_sk = IbePrivateKey::new();
     let id_bytes = id_to_bytes(id);
 
     kribe_core::extract(ibe_params, &mut ibe_sk, &id_bytes);
+    let (ibi_f1, ibi_f2) = crate::kr_ibi::main::extract(ibi_issuer_params, &id_bytes);
 
     let mut paeks_pk = PaeksPublicKey::new();
     let mut paeks_sk = PaeksPrivateKey::new();
@@ -41,6 +47,14 @@ pub fn register_user(id: &str) -> Result<String, String> {
         PaeksKeyPair {
             pk: paeks_pk,
             sk: paeks_sk,
+        },
+    );
+    state.local_ibi_credentials.insert(
+        id.to_string(),
+        IbiCredential {
+            identity: id.to_string(),
+            f1: ibi_f1,
+            f2: ibi_f2,
         },
     );
 

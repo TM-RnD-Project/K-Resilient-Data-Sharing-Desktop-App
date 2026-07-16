@@ -4,7 +4,6 @@ use std::collections::HashMap;
 use std::sync::Mutex;
 
 use mcore::ed25519::big;
-use mcore::ed25519::ecp;
 
 use crate::kr_ibe::{
     ciphertext::Ciphertext as IbeCiphertext, params::Params as IbeParams,
@@ -23,11 +22,19 @@ use crate::kr_paeks::{
     private_key::PrivateKey as PaeksPrivateKey, public_key::PublicKey as PaeksPublicKey,
 };
 
-pub struct LoginSession {
-    pub g_r: (ecp::ECP, ecp::ECP),
+#[derive(Clone)]
+pub struct IbiCredential {
+    pub identity: String,
+    pub f1: big::BIG,
+    pub f2: big::BIG,
+}
+
+pub struct LoginChallenge {
+    pub identity: String,
     pub c1: big::BIG,
     pub c2: big::BIG,
-    pub r: (big::BIG, big::BIG),
+    pub issued_at_ms: u128,
+    pub expires_at_ms: u128,
 }
 
 #[derive(Clone)]
@@ -87,7 +94,8 @@ pub struct SharedPayload {
 
 pub struct AppState {
     pub ibe_params: Option<IbeParams>,
-    pub ibi_params: Option<IbiParams>,
+    pub ibi_issuer_params: Option<IbiParams>,
+    pub ibi_verifier_params: Option<IbiParams>,
 
     // KR-PEKS
     pub peks_params: Option<PeksParams>,
@@ -101,16 +109,20 @@ pub struct AppState {
     // KR-IBE user private keys
     pub users: HashMap<String, IbePrivateKey>,
 
+    // Logical user-side KR-IBI credential store for the desktop prototype
+    pub local_ibi_credentials: HashMap<String, IbiCredential>,
+
     pub database: Vec<StoredData>,
 
-    pub login_sessions: HashMap<String, LoginSession>,
+    pub login_challenges: HashMap<String, LoginChallenge>,
     pub active_sessions: HashMap<String, bool>,
 }
 
 pub static APP_STATE: Lazy<Mutex<AppState>> = Lazy::new(|| {
     Mutex::new(AppState {
         ibe_params: None,
-        ibi_params: None,
+        ibi_issuer_params: None,
+        ibi_verifier_params: None,
 
         peks_params: None,
         peks_pk: None,
@@ -120,10 +132,11 @@ pub static APP_STATE: Lazy<Mutex<AppState>> = Lazy::new(|| {
         paeks_users: HashMap::new(),
 
         users: HashMap::new(),
+        local_ibi_credentials: HashMap::new(),
 
         database: Vec::new(),
 
-        login_sessions: HashMap::new(),
+        login_challenges: HashMap::new(),
         active_sessions: HashMap::new(),
     })
 });

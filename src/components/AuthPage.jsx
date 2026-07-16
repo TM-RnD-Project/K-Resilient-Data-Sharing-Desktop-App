@@ -37,23 +37,27 @@ export default function AuthPage({ onLoginSuccess }) {
       setIsBusy(true);
       setStatus("Starting KR-IBI login...");
 
-      // Step 1: server creates challenge
-      const [c1, c2] = await invoke("login_start", { id: userId });
+      // Step 1: verifier creates a fresh identity-bound challenge
+      const challenge = await invoke("login_start", { id: userId });
 
       setStatus("Challenge received. Generating KR-IBI response...");
 
-      // Step 2: client/backend-side response generation
-      // In your current prototype, backend stores session state,
-      // so only ID is needed here.
-      const [s1, s2] = await invoke("login_respond", { id: userId });
+      // Step 2: local prover component uses the user-held credential.
+      const proof = await invoke("login_respond", {
+        id: userId,
+        challengeId: challenge.challengeId,
+      });
 
       setStatus("Verifying login...");
 
-      // Step 3: verification
+      // Step 3: verifier checks the commitment/response with public data only.
       const verified = await invoke("login_verify", {
         id: userId,
-        s1,
-        s2,
+        challengeId: proof.challengeId,
+        commitment1: proof.commitment1,
+        commitment2: proof.commitment2,
+        s1: proof.s1,
+        s2: proof.s2,
       });
 
       if (verified) {

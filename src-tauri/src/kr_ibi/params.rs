@@ -3,6 +3,7 @@ extern crate mcore;
 use mcore::ed25519::big;
 use mcore::ed25519::ecp;
 
+#[derive(Clone)]
 pub struct Params {
     k: usize,
     order: big::BIG,
@@ -71,6 +72,22 @@ impl Params {
 
     pub fn get_Dt2(&self) -> &Vec<ecp::ECP> {
         &self.Dt2
+    }
+
+    pub fn public_clone(&self) -> Self {
+        Params {
+            k: self.k,
+            order: self.order.clone(),
+            g: self.g.clone(),
+            Dt1: self.Dt1.clone(),
+            Dt2: self.Dt2.clone(),
+            msk1: Vec::new(),
+            msk2: Vec::new(),
+        }
+    }
+
+    pub fn has_master_secret(&self) -> bool {
+        !self.msk1.is_empty() || !self.msk2.is_empty()
     }
 
     pub fn print(&self) {

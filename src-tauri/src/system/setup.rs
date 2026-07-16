@@ -30,7 +30,8 @@ pub fn setup_all(k: usize) {
     // =========================
     let mut ibi_params = IbiParams::new();
     kribi_core::setup(&mut ibi_params, k);
-    state.ibi_params = Some(ibi_params);
+    state.ibi_verifier_params = Some(ibi_params.public_clone());
+    state.ibi_issuer_params = Some(ibi_params);
 
     // =========================
     // KR-PEKS Setup
@@ -54,6 +55,13 @@ pub fn setup_all(k: usize) {
     krpaeks_core::setup(&mut paeks_params, k);
 
     state.paeks_params = Some(paeks_params);
+
+    state.users.clear();
+    state.paeks_users.clear();
+    state.local_ibi_credentials.clear();
+    state.database.clear();
+    state.login_challenges.clear();
+    state.active_sessions.clear();
 
     println!("System setup completed.");
 }
