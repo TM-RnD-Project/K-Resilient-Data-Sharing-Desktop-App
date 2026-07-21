@@ -20,7 +20,7 @@ use mcore::ed25519::ecp;
 use mcore::ed25519::rom;
 use mcore::rand::RAND;
 use mcore::sha3::{SHA3, SHAKE256};
-use rand::RngCore;
+use rand::{CryptoRng, RngCore};
 use sha2::Sha256;
 use zeroize::Zeroize;
 
@@ -110,6 +110,18 @@ pub fn encryption_with_aad(
     m: &Vec<u8>,
     aad: &[u8],
 ) -> Result<(), String> {
+    let mut rng = OsRng;
+    encryption_with_aad_and_group_rng(params, ciphertext, id, m, aad, &mut rng)
+}
+
+fn encryption_with_aad_and_group_rng<R: RngCore + CryptoRng>(
+    params: &Params,
+    ciphertext: &mut Ciphertext,
+    id: &Vec<u8>,
+    m: &Vec<u8>,
+    aad: &[u8],
+    group_rng: &mut R,
+) -> Result<(), String> {
     let order = params.get_order();
 
     //get the value of params
@@ -172,11 +184,9 @@ pub fn encryption_with_aad(
     let s = D_id.mul(&r1);
 
     // AES-GCM Encryption Start
-    // Generate fresh 256-bit randomness and map it to the KR-IBE-protected group element X.
-    let mut x_seed = [0u8; 32];
-    OsRng.fill_bytes(&mut x_seed);
-    let ecp_key = ecp::ECP::mapit(&x_seed);
-    x_seed.zeroize();
+    // Sample X uniformly from the non-identity Ed25519 prime-order subgroup.
+    let (mut x_scalar, ecp_key) = sample_uniform_kr_ibe_group_element(group_rng);
+    x_scalar.zero();
     let mut bytes_ecp_key: Vec<u8> = vec![0; MODBYTES + 1];
     ecp_key.tobytes(&mut bytes_ecp_key, true);
 
@@ -220,6 +230,37 @@ pub fn encryption_with_aad(
     ciphertext.set_ciphertext(u1, u2, c, v_id, aes_ciphertext);
 
     Ok(())
+}
+
+/// Samples `s` uniformly from {1, ..., q - 1} by rejection and returns `(s, X = [s]P)`,
+/// where q is the Ed25519 prime-subgroup order and P is MIRACL Core's canonical
+/// Ed25519 generator. `BIG::frombytes` interprets the candidate in big-endian order.
+fn sample_uniform_kr_ibe_group_element<R: RngCore + CryptoRng>(
+    rng: &mut R,
+) -> (big::BIG, ecp::ECP) {
+    let order = big::BIG::new_ints(&rom::CURVE_ORDER);
+    let candidate_bits = order.nbits();
+    let unused_high_bits = 8 * MODBYTES - candidate_bits;
+
+    loop {
+        let mut candidate_bytes = [0u8; MODBYTES];
+        rng.fill_bytes(&mut candidate_bytes);
+        if unused_high_bits > 0 {
+            candidate_bytes[0] &= 0xff >> unused_high_bits;
+        }
+
+        let mut scalar = big::BIG::frombytes(&candidate_bytes);
+        candidate_bytes.zeroize();
+        if scalar.iszilch() || big::BIG::comp(&scalar, &order) >= 0 {
+            scalar.zero();
+            continue;
+        }
+
+        let point = ecp::ECP::generator().clmul(&scalar, &order);
+        debug_assert!(!point.is_infinity());
+        debug_assert!(point.clmul(&order, &order).is_infinity());
+        return (scalar, point);
+    }
 }
 
 pub fn decryption(
@@ -453,6 +494,70 @@ fn string_to_bytes(input: &str) -> Vec<u8> {
 mod tests {
     use super::*;
     use crate::system::utils::record_aad;
+    use rand::Error as RandError;
+
+    struct SequenceRng {
+        candidates: Vec<[u8; MODBYTES]>,
+        next: usize,
+    }
+
+    impl SequenceRng {
+        fn new(candidates: Vec<[u8; MODBYTES]>) -> Self {
+            Self {
+                candidates,
+                next: 0,
+            }
+        }
+    }
+
+    impl RngCore for SequenceRng {
+        fn next_u32(&mut self) -> u32 {
+            let mut bytes = [0u8; 4];
+            self.fill_bytes(&mut bytes);
+            u32::from_le_bytes(bytes)
+        }
+
+        fn next_u64(&mut self) -> u64 {
+            let mut bytes = [0u8; 8];
+            self.fill_bytes(&mut bytes);
+            u64::from_le_bytes(bytes)
+        }
+
+        fn fill_bytes(&mut self, dest: &mut [u8]) {
+            assert_eq!(dest.len(), MODBYTES);
+            let candidate = self
+                .candidates
+                .get(self.next)
+                .expect("deterministic test RNG exhausted");
+            dest.copy_from_slice(candidate);
+            self.next += 1;
+        }
+
+        fn try_fill_bytes(&mut self, dest: &mut [u8]) -> Result<(), RandError> {
+            self.fill_bytes(dest);
+            Ok(())
+        }
+    }
+
+    impl CryptoRng for SequenceRng {}
+
+    fn scalar_bytes(value: &big::BIG) -> [u8; MODBYTES] {
+        let mut bytes = [0u8; MODBYTES];
+        value.tobytes(&mut bytes);
+        bytes
+    }
+
+    fn small_scalar_bytes(value: isize) -> [u8; MODBYTES] {
+        scalar_bytes(&big::BIG::new_int(value))
+    }
+
+    fn recover_x(sk: &PrivateKey, ciphertext: &Ciphertext, order: &big::BIG) -> ecp::ECP {
+        let mut s = ciphertext.get_u1().clmul(sk.get_p1ID(), order);
+        s.add(&ciphertext.get_u2().clmul(sk.get_p2ID(), order));
+        let mut x = ciphertext.get_c().clone();
+        x.sub(&s);
+        x
+    }
 
     fn aad(sender: &str, receiver: &str, mode: &str, index: &str) -> Vec<u8> {
         record_aad(sender, receiver, mode, index)
@@ -468,6 +573,118 @@ mod tests {
         let mut plaintext = Plaintext::new();
         decryption_with_aad(params, sk, &mut ciphertext, &mut plaintext, aad)?;
         Ok(plaintext.to_string())
+    }
+
+    #[test]
+    fn uniform_scalar_samples_are_nonzero_and_below_q() {
+        let order = big::BIG::new_ints(&rom::CURVE_ORDER);
+        let mut rng = OsRng;
+        for _ in 0..1_024 {
+            let (mut scalar, point) = sample_uniform_kr_ibe_group_element(&mut rng);
+            assert!(!scalar.iszilch());
+            assert!(big::BIG::comp(&scalar, &order) < 0);
+            assert!(!point.is_infinity());
+            scalar.zero();
+        }
+    }
+
+    #[test]
+    fn uniform_scalar_rejects_zero_q_and_greater_than_q() {
+        let order = big::BIG::new_ints(&rom::CURVE_ORDER);
+        let zero = [0u8; MODBYTES];
+        let q = scalar_bytes(&order);
+        let mut greater_than_q = big::BIG::new_copy(&order);
+        greater_than_q.inc(1);
+        greater_than_q.norm();
+        let greater_than_q = scalar_bytes(&greater_than_q);
+        let one = small_scalar_bytes(1);
+        let mut rng = SequenceRng::new(vec![zero, q, greater_than_q, one]);
+
+        let (mut scalar, point) = sample_uniform_kr_ibe_group_element(&mut rng);
+        assert_eq!(rng.next, 4);
+        assert!(scalar.isunity());
+        assert!(point.equals(&ecp::ECP::generator()));
+        scalar.zero();
+    }
+
+    #[test]
+    fn generated_group_elements_are_canonical_curve_and_subgroup_points() {
+        let order = big::BIG::new_ints(&rom::CURVE_ORDER);
+        let mut rng = OsRng;
+        for _ in 0..128 {
+            let (mut scalar, point) = sample_uniform_kr_ibe_group_element(&mut rng);
+            assert!(!point.is_infinity());
+            assert_eq!(is_valid(&point), 0);
+            assert!(point.clmul(&order, &order).is_infinity());
+
+            let mut encoded = [0u8; MODBYTES + 1];
+            point.tobytes(&mut encoded, true);
+            let decoded = ecp::ECP::frombytes(&encoded);
+            assert!(!decoded.is_infinity());
+            assert!(decoded.equals(&point));
+            assert!(decoded.clmul(&order, &order).is_infinity());
+            scalar.zero();
+        }
+    }
+
+    #[test]
+    fn different_accepted_scalars_produce_different_subgroup_points() {
+        let mut one_rng = SequenceRng::new(vec![small_scalar_bytes(1)]);
+        let mut two_rng = SequenceRng::new(vec![small_scalar_bytes(2)]);
+        let (mut one, point_one) = sample_uniform_kr_ibe_group_element(&mut one_rng);
+        let (mut two, point_two) = sample_uniform_kr_ibe_group_element(&mut two_rng);
+
+        assert!(!point_one.equals(&point_two));
+        one.zero();
+        two.zero();
+    }
+
+    #[test]
+    fn kr_ibe_recovers_x_and_reconstructs_identical_hkdf_material() {
+        let receiver = b"receiver@example.test".to_vec();
+        let message = b"hybrid payload".to_vec();
+        let context_aad = aad(
+            "alice@example.test",
+            "receiver@example.test",
+            "peks",
+            "search-index-1",
+        );
+        let mut params = Params::new();
+        setup(&mut params, 3);
+        let mut sk = PrivateKey::new();
+        extract(&params, &mut sk, &receiver);
+
+        let accepted = small_scalar_bytes(7);
+        let mut prediction_rng = SequenceRng::new(vec![accepted]);
+        let (mut scalar, expected_x) = sample_uniform_kr_ibe_group_element(&mut prediction_rng);
+        scalar.zero();
+        let mut encryption_rng = SequenceRng::new(vec![accepted]);
+        let mut ciphertext = Ciphertext::new();
+        encryption_with_aad_and_group_rng(
+            &params,
+            &mut ciphertext,
+            &receiver,
+            &message,
+            &context_aad,
+            &mut encryption_rng,
+        )
+        .unwrap();
+
+        let recovered_x = recover_x(&sk, &ciphertext, params.get_order());
+        assert!(recovered_x.equals(&expected_x));
+        let mut expected_encoding = [0u8; MODBYTES + 1];
+        let mut recovered_encoding = [0u8; MODBYTES + 1];
+        expected_x.tobytes(&mut expected_encoding, true);
+        recovered_x.tobytes(&mut recovered_encoding, true);
+        assert_eq!(expected_encoding, recovered_encoding);
+        assert_eq!(
+            derive_aes_gcm_material(&expected_encoding, &context_aad).unwrap(),
+            derive_aes_gcm_material(&recovered_encoding, &context_aad).unwrap()
+        );
+        assert_eq!(
+            decrypt_result(&params, &sk, &ciphertext, &context_aad).unwrap(),
+            "hybrid payload"
+        );
     }
 
     #[test]
