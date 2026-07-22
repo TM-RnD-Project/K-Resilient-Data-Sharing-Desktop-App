@@ -55,7 +55,24 @@ Generated measurements are written to:
 - `benchmark_results/run_metadata.txt`
 - `benchmark_results/old_vs_uniform_group_sampling_performance_comparison.csv`
 
-The immediately preceding result set is retained only under
-`benchmark_results/archive_pre_uniform_group_sampling/`.
+These CSVs, benchmark logs, generated figures, and revision archives are local
+artifacts and are excluded from Git. A benchmark run may retain an immediately
+preceding result set under a directory such as
+`benchmark_results/archive_pre_uniform_group_sampling/`, but these archives are
+not part of the repository.
 
-Thread-selection pilot evidence is kept separately in `benchmark_results/thread_scaling_pilot.csv` and `benchmark_results/thread_scaling_pilot_metadata.txt`. The repository also includes the available plotted benchmark outputs under `benchmark_results/figures/`.
+Thread-selection pilot runs may also create
+`benchmark_results/thread_scaling_pilot.csv` and
+`benchmark_results/thread_scaling_pilot_metadata.txt`; these files are generated
+locally and excluded from Git.
+
+After a benchmark run has produced `benchmark_results/enron_summary_results.csv`,
+generate PNG and PDF figures from `src-tauri/` with:
+
+```bash
+python benchmark_results/generate_benchmark_figures.py
+```
+
+The figures are written to `benchmark_results/figures/` and, like the CSVs and
+logs, are excluded from Git. The figure-generation script itself remains in the
+repository.

@@ -7,9 +7,12 @@ yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
 
-node_modules
-dist
-dist-ssr
+node_modules/
+dist/
+dist-ssr/
+target/
+**pycache**/
+*.py[cod]
 *.local
 
 # Editor directories and files
@@ -23,20 +26,18 @@ dist-ssr
 *.sln
 *.sw?
 
-# Benchmark-generated results and figures
-benchmark_results/
-src-tauri/benchmark_results/*
-!src-tauri/benchmark_results/
-!src-tauri/benchmark_results/enron_raw_results.csv
-!src-tauri/benchmark_results/enron_summary_results.csv
-!src-tauri/benchmark_results/enron_peks_vs_paeks_comparison.csv
-!src-tauri/benchmark_results/correctness_results.csv
-!src-tauri/benchmark_results/run_metadata.txt
-!src-tauri/benchmark_results/old_vs_final_performance_comparison.csv
-!src-tauri/benchmark_results/thread_scaling_pilot.csv
-!src-tauri/benchmark_results/thread_scaling_pilot_metadata.txt
-!src-tauri/benchmark_results/wrong_keyword_rejection_evidence.txt
-!src-tauri/benchmark_results/generate_benchmark_figures.py
-!src-tauri/benchmark_results/figures/
-!src-tauri/benchmark_results/figures/*.png
-!src-tauri/benchmark_results/figures/*.pdf
+# Generated reports and checksums
+/copyright_source_code.pdf
+/copyright_source_file_list.txt
+*.checksum
+*.sha256
+*.sha256sum
+*.sha512
+*.md5
+checksums.txt
+
+# Benchmark-generated results, figures, logs, and revision archives
+/benchmark_results/
+/benchmark_archive*/
+/src-tauri/benchmark_results/*
+!/src-tauri/benchmark_results/generate_benchmark_figures.py
