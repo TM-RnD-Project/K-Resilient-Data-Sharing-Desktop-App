@@ -1,0 +1,832 @@
+warning: unused import: `std::fmt`
+ --> src\kr_ibe\polynomial.rs:4:5
+  |
+4 | use std::fmt;
+  |     ^^^^^^^^
+  |
+  = note: `#[warn(unused_imports)]` on by default
+
+warning: unused import: `mcore::ed25519::ecp::ECP`
+  --> src\kr_ibi\main.rs:17:5
+   |
+17 | use mcore::ed25519::ecp::ECP;
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: unused import: `serde::Deserialize`
+ --> src\kr_paeks\ciphertext.rs:6:5
+  |
+6 | use serde::Deserialize;
+  |     ^^^^^^^^^^^^^^^^^^
+
+warning: unused import: `serde::Serialize`
+ --> src\kr_paeks\ciphertext.rs:7:5
+  |
+7 | use serde::Serialize;
+  |     ^^^^^^^^^^^^^^^^
+
+warning: unused import: `super::lagrange::Lagrange`
+ --> src\kr_paeks\main.rs:4:5
+  |
+4 | use super::lagrange::Lagrange;
+  |     ^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: unused import: `log::error`
+  --> src\kr_paeks\main.rs:21:5
+   |
+21 | use log::error;
+   |     ^^^^^^^^^^
+
+warning: unused import: `rayon::prelude::*`
+  --> src\kr_paeks\main.rs:24:5
+   |
+24 | use rayon::prelude::*;
+   |     ^^^^^^^^^^^^^^^^^
+
+warning: unused import: `serde_cbor`
+  --> src\kr_paeks\main.rs:25:5
+   |
+25 | use serde_cbor;
+   |     ^^^^^^^^^^
+
+warning: unused import: `serde_json::json`
+  --> src\kr_paeks\main.rs:26:5
+   |
+26 | use serde_json::json;
+   |     ^^^^^^^^^^^^^^^^
+
+warning: unused import: `std::error::Error`
+  --> src\kr_paeks\main.rs:27:5
+   |
+27 | use std::error::Error;
+   |     ^^^^^^^^^^^^^^^^^
+
+warning: unused imports: `AtomicU64` and `Ordering`
+  --> src\kr_paeks\main.rs:28:25
+   |
+28 | use std::sync::atomic::{AtomicU64, Ordering};
+   |                         ^^^^^^^^^  ^^^^^^^^
+
+warning: unused imports: `Arc` and `Mutex`
+  --> src\kr_paeks\main.rs:29:17
+   |
+29 | use std::sync::{Arc, Mutex};
+   |                 ^^^  ^^^^^
+
+warning: unused import: `std::fmt`
+ --> src\kr_paeks\params.rs:5:5
+  |
+5 | use std::fmt;
+  |     ^^^^^^^^
+
+warning: unused import: `std::fmt`
+ --> src\kr_paeks\polynomial.rs:5:5
+  |
+5 | use std::fmt;
+  |     ^^^^^^^^
+
+warning: unused import: `std::fmt`
+ --> src\kr_paeks\private_key.rs:8:5
+  |
+8 | use std::fmt;
+  |     ^^^^^^^^
+
+warning: unused import: `std::fmt`
+ --> src\kr_paeks\public_key.rs:5:5
+  |
+5 | use std::fmt;
+  |     ^^^^^^^^
+
+warning: unused import: `std::fmt`
+ --> src\kr_paeks\trapdoor.rs:5:5
+  |
+5 | use std::fmt;
+  |     ^^^^^^^^
+
+warning: unused imports: `self` and `utils::*`
+ --> src\system\auth.rs:2:22
+  |
+2 | use crate::kr_peks::{self, utils::*};
+  |                      ^^^^  ^^^^^^^^
+
+warning: use of deprecated function `base64::encode`: Use Engine::encode
+   --> src\kr_peks\main.rs:365:27
+    |
+365 |                     "u1": encode(ecp_to_bytes(ciphertext.get_u1())),
+    |                           ^^^^^^
+    |
+    = note: `#[warn(deprecated)]` on by default
+
+warning: use of deprecated function `base64::encode`: Use Engine::encode
+   --> src\kr_peks\main.rs:366:27
+    |
+366 |                     "u2": encode(ecp_to_bytes(ciphertext.get_u2())),
+    |                           ^^^^^^
+
+warning: use of deprecated function `base64::encode`: Use Engine::encode
+   --> src\kr_peks\main.rs:367:27
+    |
+367 |                     "sw": encode(ecp_to_bytes(ciphertext.get_sw()))
+    |                           ^^^^^^
+
+warning: use of deprecated function `base64::decode`: Use Engine::decode
+   --> src\kr_peks\main.rs:400:18
+    |
+400 |                 &decode(
+    |                  ^^^^^^
+
+warning: use of deprecated function `base64::decode`: Use Engine::decode
+   --> src\kr_peks\main.rs:408:18
+    |
+408 |                 &decode(
+    |                  ^^^^^^
+
+warning: use of deprecated function `base64::decode`: Use Engine::decode
+   --> src\kr_peks\main.rs:416:18
+    |
+416 |                 &decode(
+    |                  ^^^^^^
+
+warning: use of deprecated function `base64::encode`: Use Engine::encode
+  --> src\kr_peks\utils.rs:81:14
+   |
+81 |         "k": encode(params.get_k().to_ne_bytes()),
+   |              ^^^^^^
+
+warning: use of deprecated function `base64::encode`: Use Engine::encode
+  --> src\kr_peks\utils.rs:82:18
+   |
+82 |         "order": encode(big_to_bytes(params.get_order())),
+   |                  ^^^^^^
+
+warning: use of deprecated function `base64::encode`: Use Engine::encode
+  --> src\kr_peks\utils.rs:83:15
+   |
+83 |         "g1": encode(ecp_to_bytes(params.get_g1())),
+   |               ^^^^^^
+
+warning: use of deprecated function `base64::encode`: Use Engine::encode
+  --> src\kr_peks\utils.rs:84:15
+   |
+84 |         "g2": encode(ecp_to_bytes(params.get_g2()))
+   |               ^^^^^^
+
+warning: use of deprecated function `base64::decode`: Use Engine::decode
+  --> src\kr_peks\utils.rs:98:9
+   |
+98 |         decode(
+   |         ^^^^^^
+
+warning: use of deprecated function `base64::decode`: Use Engine::decode
+   --> src\kr_peks\utils.rs:109:10
+    |
+109 |         &decode(
+    |          ^^^^^^
+
+warning: use of deprecated function `base64::decode`: Use Engine::decode
+   --> src\kr_peks\utils.rs:118:10
+    |
+118 |         &decode(
+    |          ^^^^^^
+
+warning: use of deprecated function `base64::decode`: Use Engine::decode
+   --> src\kr_peks\utils.rs:127:10
+    |
+127 |         &decode(
+    |          ^^^^^^
+
+warning: use of deprecated function `base64::encode`: Use Engine::encode
+   --> src\kr_peks\utils.rs:144:18
+    |
+144 |         .map(|c| encode(&big_to_bytes(c)))
+    |                  ^^^^^^
+
+warning: use of deprecated function `base64::encode`: Use Engine::encode
+   --> src\kr_peks\utils.rs:148:19
+    |
+148 |         "degree": encode(p.get_degree().to_ne_bytes()),
+    |                   ^^^^^^
+
+warning: use of deprecated function `base64::encode`: Use Engine::encode
+   --> src\kr_peks\utils.rs:149:18
+    |
+149 |         "order": encode(big_to_bytes(p.get_order())),
+    |                  ^^^^^^
+
+warning: use of deprecated function `base64::decode`: Use Engine::decode
+   --> src\kr_peks\utils.rs:158:9
+    |
+158 |         decode(
+    |         ^^^^^^
+
+warning: use of deprecated function `base64::decode`: Use Engine::decode
+   --> src\kr_peks\utils.rs:169:10
+    |
+169 |         &decode(
+    |          ^^^^^^
+
+warning: use of deprecated function `base64::decode`: Use Engine::decode
+   --> src\kr_peks\utils.rs:183:14
+    |
+183 |             &decode(line).expect("Failed to decode base64"),
+    |              ^^^^^^
+
+warning: use of deprecated function `base64::encode`: Use Engine::encode
+   --> src\kr_peks\utils.rs:227:20
+    |
+227 |         .map(|ecp| encode(&ecp_to_bytes(ecp)))
+    |                    ^^^^^^
+
+warning: use of deprecated function `base64::decode`: Use Engine::decode
+   --> src\kr_peks\utils.rs:251:14
+    |
+251 |             &decode(line).expect("Failed to decode base64"),
+    |              ^^^^^^
+
+warning: use of deprecated function `base64::encode`: Use Engine::encode
+   --> src\kr_peks\utils.rs:262:15
+    |
+262 |         "u1": encode(ecp_to_bytes(c.get_u1())),
+    |               ^^^^^^
+
+warning: use of deprecated function `base64::encode`: Use Engine::encode
+   --> src\kr_peks\utils.rs:263:15
+    |
+263 |         "u2": encode(ecp_to_bytes(c.get_u2())),
+    |               ^^^^^^
+
+warning: use of deprecated function `base64::encode`: Use Engine::encode
+   --> src\kr_peks\utils.rs:264:15
+    |
+264 |         "sw": encode(ecp_to_bytes(c.get_sw()))
+    |               ^^^^^^
+
+warning: use of deprecated function `base64::decode`: Use Engine::decode
+   --> src\kr_peks\utils.rs:278:10
+    |
+278 |         &decode(
+    |          ^^^^^^
+
+warning: use of deprecated function `base64::decode`: Use Engine::decode
+   --> src\kr_peks\utils.rs:286:10
+    |
+286 |         &decode(
+    |          ^^^^^^
+
+warning: use of deprecated function `base64::decode`: Use Engine::decode
+   --> src\kr_peks\utils.rs:294:10
+    |
+294 |         &decode(
+    |          ^^^^^^
+
+warning: unused import: `mysql::prelude`
+  --> src\kr_paeks\main.rs:22:5
+   |
+22 | use mysql::prelude::*;
+   |     ^^^^^^^^^^^^^^
+
+warning: variable does not need to be mutable
+   --> src\kr_ibe\main.rs:288:13
+    |
+288 |         let mut s = temp_u1_p1ID;
+    |             ----^
+    |             |
+    |             help: remove this `mut`
+    |
+    = note: `#[warn(unused_mut)]` on by default
+
+warning: unused variable: `rand`
+  --> src\kr_ibe\polynomial.rs:25:17
+   |
+25 |         let mut rand = rand::thread_rng();
+   |                 ^^^^ help: if this is intentional, prefix it with an underscore: `_rand`
+   |
+   = note: `#[warn(unused_variables)]` on by default
+
+warning: variable does not need to be mutable
+  --> src\kr_ibe\polynomial.rs:25:13
+   |
+25 |         let mut rand = rand::thread_rng();
+   |             ----^^^^
+   |             |
+   |             help: remove this `mut`
+
+warning: variable does not need to be mutable
+  --> src\kr_ibe\polynomial.rs:26:13
+   |
+26 |         let mut seed = [0u8; 100];
+   |             ----^^^^
+   |             |
+   |             help: remove this `mut`
+
+warning: unused variable: `start_total`
+   --> src\kr_ibi\main.rs:173:9
+    |
+173 |     let start_total = Instant::now();
+    |         ^^^^^^^^^^^ help: if this is intentional, prefix it with an underscore: `_start_total`
+
+warning: variable does not need to be mutable
+  --> src\kr_paeks\lagrange.rs:27:25
+   |
+27 |                     let mut xj = x_values[j].clone();
+   |                         ----^^
+   |                         |
+   |                         help: remove this `mut`
+
+warning: variable does not need to be mutable
+  --> src\kr_paeks\lagrange.rs:28:25
+   |
+28 |                     let mut xi = x_values[i].clone();
+   |                         ----^^
+   |                         |
+   |                         help: remove this `mut`
+
+warning: variable does not need to be mutable
+   --> src\kr_paeks\main.rs:121:9
+    |
+121 |     let mut u = sk.p2.evaluate(&hash_kw);
+    |         ----^
+    |         |
+    |         help: remove this `mut`
+
+warning: variable does not need to be mutable
+   --> src\kr_paeks\main.rs:171:9
+    |
+171 |     let mut u = sk.p2.evaluate(&hash_kw);
+    |         ----^
+    |         |
+    |         help: remove this `mut`
+
+warning: variable does not need to be mutable
+   --> src\kr_paeks\main.rs:217:9
+    |
+217 |     let mut u_cap = sk.p2.evaluate(keyword);
+    |         ----^^^^^
+    |         |
+    |         help: remove this `mut`
+
+warning: variable does not need to be mutable
+   --> src\kr_paeks\main.rs:239:9
+    |
+239 |     let mut hash_kw = hash_to_big_array(keywords);
+    |         ----^^^^^^^
+    |         |
+    |         help: remove this `mut`
+
+warning: variable does not need to be mutable
+   --> src\kr_paeks\main.rs:270:9
+    |
+270 |     let mut u_cap = sk.p2.evaluate(&hash_kw);
+    |         ----^^^^^
+    |         |
+    |         help: remove this `mut`
+
+warning: unused variable: `setup_time`
+   --> src\kr_paeks\main.rs:313:9
+    |
+313 |     let setup_time = setup_start.elapsed();
+    |         ^^^^^^^^^^ help: if this is intentional, prefix it with an underscore: `_setup_time`
+
+warning: unused variable: `sender_keygen_time`
+   --> src\kr_paeks\main.rs:319:9
+    |
+319 |     let sender_keygen_time = sender_keygen_start.elapsed();
+    |         ^^^^^^^^^^^^^^^^^^ help: if this is intentional, prefix it with an underscore: `_sender_keygen_time`
+
+warning: unused variable: `receiver_keygen_time`
+   --> src\kr_paeks\main.rs:329:9
+    |
+329 |     let receiver_keygen_time = receiver_keygen_start.elapsed();
+    |         ^^^^^^^^^^^^^^^^^^^^ help: if this is intentional, prefix it with an underscore: `_receiver_keygen_time`
+
+warning: unused variable: `ciphertext_time`
+   --> src\kr_paeks\main.rs:339:9
+    |
+339 |     let ciphertext_time = ciphertext_start.elapsed();
+    |         ^^^^^^^^^^^^^^^ help: if this is intentional, prefix it with an underscore: `_ciphertext_time`
+
+warning: unused variable: `trapdoor_time`
+   --> src\kr_paeks\main.rs:345:9
+    |
+345 |     let trapdoor_time = trapdoor_start.elapsed();
+    |         ^^^^^^^^^^^^^ help: if this is intentional, prefix it with an underscore: `_trapdoor_time`
+
+warning: unused variable: `test_result`
+   --> src\kr_paeks\main.rs:350:9
+    |
+350 |     let test_result = test(&ciphertext, &trapdoor1);
+    |         ^^^^^^^^^^^ help: if this is intentional, prefix it with an underscore: `_test_result`
+
+warning: unused variable: `test_time`
+   --> src\kr_paeks\main.rs:351:9
+    |
+351 |     let test_time = test_start.elapsed();
+    |         ^^^^^^^^^ help: if this is intentional, prefix it with an underscore: `_test_time`
+
+warning: unused variable: `duration`
+   --> src\kr_peks\main.rs:221:13
+    |
+221 |         let duration = start.elapsed();
+    |             ^^^^^^^^ help: if this is intentional, prefix it with an underscore: `_duration`
+
+warning: variable does not need to be mutable
+  --> src\system\auth.rs:35:9
+   |
+35 |     let mut state = APP_STATE.lock().unwrap();
+   |         ----^^^^^
+   |         |
+   |         help: remove this `mut`
+
+warning: variable does not need to be mutable
+  --> src\system\auth.rs:75:9
+   |
+75 |     let mut id_bytes = id_to_bytes(id);
+   |         ----^^^^^^^^
+   |         |
+   |         help: remove this `mut`
+
+warning: function `main` is never used
+   --> src\kr_ibe\main.rs:333:4
+    |
+333 | fn main() {
+    |    ^^^^
+    |
+    = note: `#[warn(dead_code)]` on by default
+
+warning: function `string_to_bytes` is never used
+   --> src\kr_ibe\main.rs:423:4
+    |
+423 | fn string_to_bytes(input: &str) -> Vec<u8> {
+    |    ^^^^^^^^^^^^^^^
+
+warning: function `main` is never used
+   --> src\kr_ibi\main.rs:172:4
+    |
+172 | fn main() {
+    |    ^^^^
+
+warning: function `bytes_to_hex` is never used
+  --> src\kr_paeks\ciphertext.rs:86:4
+   |
+86 | fn bytes_to_hex(bytes: &[u8]) -> String {
+   |    ^^^^^^^^^^^^
+
+warning: function `main` is never used
+   --> src\kr_paeks\main.rs:294:4
+    |
+294 | fn main() {
+    |    ^^^^
+
+warning: function `ecp_to_hex` is never used
+  --> src\kr_paeks\private_key.rs:76:4
+   |
+76 | fn ecp_to_hex(p: &ecp::ECP) -> String {
+   |    ^^^^^^^^^^
+
+warning: function `main` is never used
+   --> src\kr_peks\main.rs:110:4
+    |
+110 | fn main() {
+    |    ^^^^
+
+warning: function `TestSQLEnc` is never used
+   --> src\kr_peks\main.rs:340:4
+    |
+340 | fn TestSQLEnc(params: &Params, pk: &PublicKey, w: &Vec<u8>) {
+    |    ^^^^^^^^^^
+
+warning: function `TestSQLTest` is never used
+   --> src\kr_peks\main.rs:379:4
+    |
+379 | fn TestSQLTest(t: &Trapdoor) -> i32 {
+    |    ^^^^^^^^^^^
+
+warning: structure field `At` should have a snake case name
+  --> src\kr_ibe\params.rs:15:5
+   |
+15 |     At: Vec<ecp::ECP>,
+   |     ^^ help: convert the identifier to snake case: `at`
+   |
+   = note: `#[warn(non_snake_case)]` on by default
+
+warning: structure field `Bt` should have a snake case name
+  --> src\kr_ibe\params.rs:16:5
+   |
+16 |     Bt: Vec<ecp::ECP>,
+   |     ^^ help: convert the identifier to snake case: `bt`
+
+warning: structure field `Dt` should have a snake case name
+  --> src\kr_ibe\params.rs:17:5
+   |
+17 |     Dt: Vec<ecp::ECP>,
+   |     ^^ help: convert the identifier to snake case: `dt`
+
+warning: variable `At` should have a snake case name
+  --> src\kr_ibe\params.rs:50:9
+   |
+50 |         At: &Vec<ecp::ECP>,
+   |         ^^ help: convert the identifier to snake case: `at`
+
+warning: variable `Bt` should have a snake case name
+  --> src\kr_ibe\params.rs:51:9
+   |
+51 |         Bt: &Vec<ecp::ECP>,
+   |         ^^ help: convert the identifier to snake case: `bt`
+
+warning: variable `Dt` should have a snake case name
+  --> src\kr_ibe\params.rs:52:9
+   |
+52 |         Dt: &Vec<ecp::ECP>,
+   |         ^^ help: convert the identifier to snake case: `dt`
+
+warning: variable `At` should have a snake case name
+  --> src\kr_ibe\params.rs:83:9
+   |
+83 |         At: Vec<ecp::ECP>,
+   |         ^^ help: convert the identifier to snake case: `at`
+
+warning: variable `Bt` should have a snake case name
+  --> src\kr_ibe\params.rs:84:9
+   |
+84 |         Bt: Vec<ecp::ECP>,
+   |         ^^ help: convert the identifier to snake case: `bt`
+
+warning: variable `Dt` should have a snake case name
+  --> src\kr_ibe\params.rs:85:9
+   |
+85 |         Dt: Vec<ecp::ECP>,
+   |         ^^ help: convert the identifier to snake case: `dt`
+
+warning: method `get_At` should have a snake case name
+   --> src\kr_ibe\params.rs:124:12
+    |
+124 |     pub fn get_At(&self) -> &Vec<ecp::ECP> {
+    |            ^^^^^^ help: convert the identifier to snake case: `get_at`
+
+warning: method `get_Bt` should have a snake case name
+   --> src\kr_ibe\params.rs:128:12
+    |
+128 |     pub fn get_Bt(&self) -> &Vec<ecp::ECP> {
+    |            ^^^^^^ help: convert the identifier to snake case: `get_bt`
+
+warning: method `get_Dt` should have a snake case name
+   --> src\kr_ibe\params.rs:132:12
+    |
+132 |     pub fn get_Dt(&self) -> &Vec<ecp::ECP> {
+    |            ^^^^^^ help: convert the identifier to snake case: `get_dt`
+
+warning: method `Gennew` should have a snake case name
+  --> src\kr_ibe\polynomial.rs:23:12
+   |
+23 |     pub fn Gennew(degree: usize, sk: &big::BIG, order: &big::BIG) -> Self {
+   |            ^^^^^^ help: convert the identifier to snake case: `gennew`
+
+warning: structure field `f1ID` should have a snake case name
+ --> src\kr_ibe\private_key.rs:7:5
+  |
+7 |     f1ID: big::BIG,
+  |     ^^^^ help: convert the identifier to snake case: `f1_id`
+
+warning: structure field `f2ID` should have a snake case name
+ --> src\kr_ibe\private_key.rs:8:5
+  |
+8 |     f2ID: big::BIG,
+  |     ^^^^ help: convert the identifier to snake case: `f2_id`
+
+warning: structure field `h1ID` should have a snake case name
+ --> src\kr_ibe\private_key.rs:9:5
+  |
+9 |     h1ID: big::BIG,
+  |     ^^^^ help: convert the identifier to snake case: `h1_id`
+
+warning: structure field `h2ID` should have a snake case name
+  --> src\kr_ibe\private_key.rs:10:5
+   |
+10 |     h2ID: big::BIG,
+   |     ^^^^ help: convert the identifier to snake case: `h2_id`
+
+warning: structure field `p1ID` should have a snake case name
+  --> src\kr_ibe\private_key.rs:11:5
+   |
+11 |     p1ID: big::BIG,
+   |     ^^^^ help: convert the identifier to snake case: `p1_id`
+
+warning: structure field `p2ID` should have a snake case name
+  --> src\kr_ibe\private_key.rs:12:5
+   |
+12 |     p2ID: big::BIG,
+   |     ^^^^ help: convert the identifier to snake case: `p2_id`
+
+warning: variable `f1ID` should have a snake case name
+  --> src\kr_ibe\private_key.rs:29:9
+   |
+29 |         f1ID: big::BIG,
+   |         ^^^^ help: convert the identifier to snake case: `f1_id`
+
+warning: variable `f2ID` should have a snake case name
+  --> src\kr_ibe\private_key.rs:30:9
+   |
+30 |         f2ID: big::BIG,
+   |         ^^^^ help: convert the identifier to snake case: `f2_id`
+
+warning: variable `h1ID` should have a snake case name
+  --> src\kr_ibe\private_key.rs:31:9
+   |
+31 |         h1ID: big::BIG,
+   |         ^^^^ help: convert the identifier to snake case: `h1_id`
+
+warning: variable `h2ID` should have a snake case name
+  --> src\kr_ibe\private_key.rs:32:9
+   |
+32 |         h2ID: big::BIG,
+   |         ^^^^ help: convert the identifier to snake case: `h2_id`
+
+warning: variable `p1ID` should have a snake case name
+  --> src\kr_ibe\private_key.rs:33:9
+   |
+33 |         p1ID: big::BIG,
+   |         ^^^^ help: convert the identifier to snake case: `p1_id`
+
+warning: variable `p2ID` should have a snake case name
+  --> src\kr_ibe\private_key.rs:34:9
+   |
+34 |         p2ID: big::BIG,
+   |         ^^^^ help: convert the identifier to snake case: `p2_id`
+
+warning: method `get_f1ID` should have a snake case name
+  --> src\kr_ibe\private_key.rs:44:12
+   |
+44 |     pub fn get_f1ID(&self) -> &big::BIG {
+   |            ^^^^^^^^ help: convert the identifier to snake case: `get_f1_id`
+
+warning: method `get_f2ID` should have a snake case name
+  --> src\kr_ibe\private_key.rs:48:12
+   |
+48 |     pub fn get_f2ID(&self) -> &big::BIG {
+   |            ^^^^^^^^ help: convert the identifier to snake case: `get_f2_id`
+
+warning: method `get_h1ID` should have a snake case name
+  --> src\kr_ibe\private_key.rs:52:12
+   |
+52 |     pub fn get_h1ID(&self) -> &big::BIG {
+   |            ^^^^^^^^ help: convert the identifier to snake case: `get_h1_id`
+
+warning: method `get_h2ID` should have a snake case name
+  --> src\kr_ibe\private_key.rs:56:12
+   |
+56 |     pub fn get_h2ID(&self) -> &big::BIG {
+   |            ^^^^^^^^ help: convert the identifier to snake case: `get_h2_id`
+
+warning: method `get_p1ID` should have a snake case name
+  --> src\kr_ibe\private_key.rs:60:12
+   |
+60 |     pub fn get_p1ID(&self) -> &big::BIG {
+   |            ^^^^^^^^ help: convert the identifier to snake case: `get_p1_id`
+
+warning: method `get_p2ID` should have a snake case name
+  --> src\kr_ibe\private_key.rs:64:12
+   |
+64 |     pub fn get_p2ID(&self) -> &big::BIG {
+   |            ^^^^^^^^ help: convert the identifier to snake case: `get_p2_id`
+
+warning: variable `fID1` should have a snake case name
+  --> src\kr_ibi\api.rs:76:14
+   |
+76 |         let (fID1, fID2) = kribi_core::extract(params, &id_bytes);
+   |              ^^^^ help: convert the identifier to snake case: `f_id1`
+
+warning: variable `fID2` should have a snake case name
+  --> src\kr_ibi\api.rs:76:20
+   |
+76 |         let (fID1, fID2) = kribi_core::extract(params, &id_bytes);
+   |                    ^^^^ help: convert the identifier to snake case: `f_id2`
+
+warning: variable `fID1` should have a snake case name
+   --> src\kr_ibi\api.rs:110:14
+    |
+110 |         let (fID1, fID2) = kribi_core::extract(params, &id_bytes);
+    |              ^^^^ help: convert the identifier to snake case: `f_id1`
+
+warning: variable `fID2` should have a snake case name
+   --> src\kr_ibi\api.rs:110:20
+    |
+110 |         let (fID1, fID2) = kribi_core::extract(params, &id_bytes);
+    |                    ^^^^ help: convert the identifier to snake case: `f_id2`
+
+warning: structure field `Dt1` should have a snake case name
+  --> src\kr_ibi\params.rs:10:5
+   |
+10 |     Dt1: Vec<ecp::ECP>,
+   |     ^^^ help: convert the identifier to snake case: `dt1`
+
+warning: structure field `Dt2` should have a snake case name
+  --> src\kr_ibi\params.rs:11:5
+   |
+11 |     Dt2: Vec<ecp::ECP>,
+   |     ^^^ help: convert the identifier to snake case: `dt2`
+
+warning: variable `Dt1` should have a snake case name
+  --> src\kr_ibi\params.rs:34:9
+   |
+34 |         Dt1: Vec<ecp::ECP>,
+   |         ^^^ help: convert the identifier to snake case: `dt1`
+
+warning: variable `Dt2` should have a snake case name
+  --> src\kr_ibi\params.rs:35:9
+   |
+35 |         Dt2: Vec<ecp::ECP>,
+   |         ^^^ help: convert the identifier to snake case: `dt2`
+
+warning: method `get_Dt1` should have a snake case name
+  --> src\kr_ibi\params.rs:68:12
+   |
+68 |     pub fn get_Dt1(&self) -> &Vec<ecp::ECP> {
+   |            ^^^^^^^ help: convert the identifier to snake case: `get_dt1`
+
+warning: method `get_Dt2` should have a snake case name
+  --> src\kr_ibi\params.rs:72:12
+   |
+72 |     pub fn get_Dt2(&self) -> &Vec<ecp::ECP> {
+   |            ^^^^^^^ help: convert the identifier to snake case: `get_dt2`
+
+warning: unused `Result` that must be used
+   --> src\kr_peks\main.rs:213:9
+    |
+213 |         export_params(&params, "parameter.params");
+    |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    |
+    = note: this `Result` may be an `Err` variant, which should be handled
+    = note: `#[warn(unused_must_use)]` on by default
+help: use `let _ = ...` to ignore the resulting value
+    |
+213 |         let _ = export_params(&params, "parameter.params");
+    |         +++++++
+
+warning: unused `Result` that must be used
+   --> src\kr_peks\main.rs:214:9
+    |
+214 |         export_sk(&sk, "privatekey.sk");
+    |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    |
+    = note: this `Result` may be an `Err` variant, which should be handled
+help: use `let _ = ...` to ignore the resulting value
+    |
+214 |         let _ = export_sk(&sk, "privatekey.sk");
+    |         +++++++
+
+warning: unused `Result` that must be used
+   --> src\kr_peks\main.rs:215:9
+    |
+215 |         export_c(&c, "ciphertext.cipher");
+    |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    |
+    = note: this `Result` may be an `Err` variant, which should be handled
+help: use `let _ = ...` to ignore the resulting value
+    |
+215 |         let _ = export_c(&c, "ciphertext.cipher");
+    |         +++++++
+
+warning: structure field `Dt` should have a snake case name
+ --> src\kr_peks\public_key.rs:7:5
+  |
+7 |     Dt: Vec<ecp::ECP>,
+  |     ^^ help: convert the identifier to snake case: `dt`
+
+warning: variable `Dt` should have a snake case name
+  --> src\kr_peks\public_key.rs:15:27
+   |
+15 |     pub fn new_public_key(Dt: Vec<ecp::ECP>) -> Self {
+   |                           ^^ help: convert the identifier to snake case: `dt`
+
+warning: variable `Dt` should have a snake case name
+  --> src\kr_peks\public_key.rs:19:38
+   |
+19 |     pub fn set_public_key(&mut self, Dt: Vec<ecp::ECP>) {
+   |                                      ^^ help: convert the identifier to snake case: `dt`
+
+warning: method `get_Dt` should have a snake case name
+  --> src\kr_peks\public_key.rs:23:12
+   |
+23 |     pub fn get_Dt(&self) -> &Vec<ecp::ECP> {
+   |            ^^^^^^ help: convert the identifier to snake case: `get_dt`
+
+warning: method `get_Dt_i` should have a snake case name
+  --> src\kr_peks\public_key.rs:27:12
+   |
+27 |     pub fn get_Dt_i(&self, i: usize) -> &ecp::ECP {
+   |            ^^^^^^^^ help: convert the identifier to snake case: `get_dt_i`
+
+warning: variable `Dt_str` should have a snake case name
+   --> src\kr_peks\utils.rs:244:9
+    |
+244 |     let Dt_str = data["Dt"]
+    |         ^^^^^^ help: convert the identifier to snake case: `dt_str`
+
+warning: variable `Dt` should have a snake case name
+   --> src\kr_peks\utils.rs:248:13
+    |
+248 |     let mut Dt = Vec::new();
+    |             ^^ help: convert the identifier to snake case: `dt`
+
+warning: `k-resilient-suite-react` (lib) generated 129 warnings (run `cargo fix --lib -p k-resilient-suite-react` to apply 30 suggestions)
+    Finished `release` profile [optimized] target(s) in 1.01s
+     Running `target\release\enron_benchmark.exe --threads 8`

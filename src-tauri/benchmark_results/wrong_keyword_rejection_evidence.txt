@@ -1,0 +1,4 @@
+Wrong-keyword rejection evidence preserved as a separate existing result per user instruction.
+No new wrong-keyword benchmark was executed in this task.
+KR-PEKS wrong-keyword rejection: 100/100.
+KR-PAEKS wrong-keyword rejection: 100/100.

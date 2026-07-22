@@ -1,0 +1,1240 @@
+====================================================
+KR Data Sharing Evaluation over EnronMail Dataset
+====================================================
+
+Dataset source:                    ../dataset/EnronMailDB.sql
+Detected CPU threads:              32
+Using benchmark workers:           8
+Runs per setting:                  100
+Dataset sizes:                     [100, 500, 1000, 5000, 10000]
+Authorised identity counts:        [1, 5, 10, 20]
+Search schemes:                    [KR-PEKS, KR-PAEKS]
+
+----------------------------------------------------
+Scheme:                            KR-PEKS
+Dataset size:                      100
+Authorised identities:             1
+----------------------------------------------------
+Successful runs:                   100 / 100
+Authenticated login passed:        100 / 100
+Unauthenticated user rejected:     100 / 100
+Correct keyword search passed:     100 / 100
+Wrong keyword rejected:            100 / 100
+Wrong scheme rejected:             100 / 100
+Authorised decryption passed:      100 / 100
+Unauthorised decryption failed:    100 / 100
+
+Average Performance:
+Setup time:                        24.945 ms
+Registration/KeyGen time:          2.190 ms
+Login/Auth time:                   3.818 ms
+KR-IBE encryption time:            4.891 ms
+Search index generation time:      210.730 ms
+Search/Trapdoor/Test time:         14.103 ms
+KR-IBE decryption time:            0.580 ms
+Total upload time:                 215.621 ms
+Total retrieval time:              18.501 ms
+
+Average Size:
+Payload ciphertext size:           1848 bytes
+Search index size:                 410 bytes
+
+----------------------------------------------------
+Scheme:                            KR-PEKS
+Dataset size:                      100
+Authorised identities:             5
+----------------------------------------------------
+Successful runs:                   100 / 100
+Authenticated login passed:        100 / 100
+Unauthenticated user rejected:     100 / 100
+Correct keyword search passed:     100 / 100
+Wrong keyword rejected:            100 / 100
+Wrong scheme rejected:             100 / 100
+Authorised decryption passed:      100 / 100
+Unauthorised decryption failed:    100 / 100
+
+Average Performance:
+Setup time:                        25.634 ms
+Registration/KeyGen time:          6.777 ms
+Login/Auth time:                   4.069 ms
+KR-IBE encryption time:            5.085 ms
+Search index generation time:      220.429 ms
+Search/Trapdoor/Test time:         14.555 ms
+KR-IBE decryption time:            0.625 ms
+Total upload time:                 225.514 ms
+Total retrieval time:              19.249 ms
+
+Average Size:
+Payload ciphertext size:           1848 bytes
+Search index size:                 410 bytes
+
+----------------------------------------------------
+Scheme:                            KR-PEKS
+Dataset size:                      100
+Authorised identities:             10
+----------------------------------------------------
+Successful runs:                   100 / 100
+Authenticated login passed:        100 / 100
+Unauthenticated user rejected:     100 / 100
+Correct keyword search passed:     100 / 100
+Wrong keyword rejected:            100 / 100
+Wrong scheme rejected:             100 / 100
+Authorised decryption passed:      100 / 100
+Unauthorised decryption failed:    100 / 100
+
+Average Performance:
+Setup time:                        27.238 ms
+Registration/KeyGen time:          13.378 ms
+Login/Auth time:                   4.395 ms
+KR-IBE encryption time:            5.314 ms
+Search index generation time:      234.398 ms
+Search/Trapdoor/Test time:         15.456 ms
+KR-IBE decryption time:            0.662 ms
+Total upload time:                 239.712 ms
+Total retrieval time:              20.512 ms
+
+Average Size:
+Payload ciphertext size:           1848 bytes
+Search index size:                 410 bytes
+
+----------------------------------------------------
+Scheme:                            KR-PEKS
+Dataset size:                      100
+Authorised identities:             20
+----------------------------------------------------
+Successful runs:                   100 / 100
+Authenticated login passed:        100 / 100
+Unauthenticated user rejected:     100 / 100
+Correct keyword search passed:     100 / 100
+Wrong keyword rejected:            100 / 100
+Wrong scheme rejected:             100 / 100
+Authorised decryption passed:      100 / 100
+Unauthorised decryption failed:    100 / 100
+
+Average Performance:
+Setup time:                        27.320 ms
+Registration/KeyGen time:          25.267 ms
+Login/Auth time:                   4.420 ms
+KR-IBE encryption time:            5.275 ms
+Search index generation time:      232.241 ms
+Search/Trapdoor/Test time:         15.437 ms
+KR-IBE decryption time:            0.664 ms
+Total upload time:                 237.516 ms
+Total retrieval time:              20.521 ms
+
+Average Size:
+Payload ciphertext size:           1848 bytes
+Search index size:                 410 bytes
+
+----------------------------------------------------
+Scheme:                            KR-PEKS
+Dataset size:                      500
+Authorised identities:             1
+----------------------------------------------------
+Successful runs:                   100 / 100
+Authenticated login passed:        100 / 100
+Unauthenticated user rejected:     100 / 100
+Correct keyword search passed:     100 / 100
+Wrong keyword rejected:            100 / 100
+Wrong scheme rejected:             100 / 100
+Authorised decryption passed:      100 / 100
+Unauthorised decryption failed:    100 / 100
+
+Average Performance:
+Setup time:                        27.476 ms
+Registration/KeyGen time:          2.386 ms
+Login/Auth time:                   4.382 ms
+KR-IBE encryption time:            5.348 ms
+Search index generation time:      1170.785 ms
+Search/Trapdoor/Test time:         76.030 ms
+KR-IBE decryption time:            0.642 ms
+Total upload time:                 1176.133 ms
+Total retrieval time:              81.054 ms
+
+Average Size:
+Payload ciphertext size:           1848 bytes
+Search index size:                 410 bytes
+
+----------------------------------------------------
+Scheme:                            KR-PEKS
+Dataset size:                      500
+Authorised identities:             5
+----------------------------------------------------
+Successful runs:                   100 / 100
+Authenticated login passed:        100 / 100
+Unauthenticated user rejected:     100 / 100
+Correct keyword search passed:     100 / 100
+Wrong keyword rejected:            100 / 100
+Wrong scheme rejected:             100 / 100
+Authorised decryption passed:      100 / 100
+Unauthorised decryption failed:    100 / 100
+
+Average Performance:
+Setup time:                        26.055 ms
+Registration/KeyGen time:          6.969 ms
+Login/Auth time:                   4.064 ms
+KR-IBE encryption time:            5.157 ms
+Search index generation time:      1124.221 ms
+Search/Trapdoor/Test time:         72.818 ms
+KR-IBE decryption time:            0.626 ms
+Total upload time:                 1129.378 ms
+Total retrieval time:              77.508 ms
+
+Average Size:
+Payload ciphertext size:           1848 bytes
+Search index size:                 410 bytes
+
+----------------------------------------------------
+Scheme:                            KR-PEKS
+Dataset size:                      500
+Authorised identities:             10
+----------------------------------------------------
+Successful runs:                   100 / 100
+Authenticated login passed:        100 / 100
+Unauthenticated user rejected:     100 / 100
+Correct keyword search passed:     100 / 100
+Wrong keyword rejected:            100 / 100
+Wrong scheme rejected:             100 / 100
+Authorised decryption passed:      100 / 100
+Unauthorised decryption failed:    100 / 100
+
+Average Performance:
+Setup time:                        27.744 ms
+Registration/KeyGen time:          13.401 ms
+Login/Auth time:                   4.433 ms
+KR-IBE encryption time:            5.394 ms
+Search index generation time:      1167.376 ms
+Search/Trapdoor/Test time:         75.174 ms
+KR-IBE decryption time:            0.656 ms
+Total upload time:                 1172.769 ms
+Total retrieval time:              80.263 ms
+
+Average Size:
+Payload ciphertext size:           1848 bytes
+Search index size:                 410 bytes
+
+----------------------------------------------------
+Scheme:                            KR-PEKS
+Dataset size:                      500
+Authorised identities:             20
+----------------------------------------------------
+Successful runs:                   100 / 100
+Authenticated login passed:        100 / 100
+Unauthenticated user rejected:     100 / 100
+Correct keyword search passed:     100 / 100
+Wrong keyword rejected:            100 / 100
+Wrong scheme rejected:             100 / 100
+Authorised decryption passed:      100 / 100
+Unauthorised decryption failed:    100 / 100
+
+Average Performance:
+Setup time:                        27.575 ms
+Registration/KeyGen time:          25.989 ms
+Login/Auth time:                   4.633 ms
+KR-IBE encryption time:            5.303 ms
+Search index generation time:      1172.918 ms
+Search/Trapdoor/Test time:         76.205 ms
+KR-IBE decryption time:            0.659 ms
+Total upload time:                 1178.221 ms
+Total retrieval time:              81.498 ms
+
+Average Size:
+Payload ciphertext size:           1848 bytes
+Search index size:                 410 bytes
+
+----------------------------------------------------
+Scheme:                            KR-PEKS
+Dataset size:                      1000
+Authorised identities:             1
+----------------------------------------------------
+Successful runs:                   100 / 100
+Authenticated login passed:        100 / 100
+Unauthenticated user rejected:     100 / 100
+Correct keyword search passed:     100 / 100
+Wrong keyword rejected:            100 / 100
+Wrong scheme rejected:             100 / 100
+Authorised decryption passed:      100 / 100
+Unauthorised decryption failed:    100 / 100
+
+Average Performance:
+Setup time:                        27.710 ms
+Registration/KeyGen time:          2.368 ms
+Login/Auth time:                   4.235 ms
+KR-IBE encryption time:            5.561 ms
+Search index generation time:      2348.028 ms
+Search/Trapdoor/Test time:         151.142 ms
+KR-IBE decryption time:            0.686 ms
+Total upload time:                 2353.588 ms
+Total retrieval time:              156.062 ms
+
+Average Size:
+Payload ciphertext size:           1848 bytes
+Search index size:                 410 bytes
+
+----------------------------------------------------
+Scheme:                            KR-PEKS
+Dataset size:                      1000
+Authorised identities:             5
+----------------------------------------------------
+Successful runs:                   100 / 100
+Authenticated login passed:        100 / 100
+Unauthenticated user rejected:     100 / 100
+Correct keyword search passed:     100 / 100
+Wrong keyword rejected:            100 / 100
+Wrong scheme rejected:             100 / 100
+Authorised decryption passed:      100 / 100
+Unauthorised decryption failed:    100 / 100
+
+Average Performance:
+Setup time:                        28.114 ms
+Registration/KeyGen time:          7.446 ms
+Login/Auth time:                   4.529 ms
+KR-IBE encryption time:            5.326 ms
+Search index generation time:      2341.535 ms
+Search/Trapdoor/Test time:         154.160 ms
+KR-IBE decryption time:            0.671 ms
+Total upload time:                 2346.862 ms
+Total retrieval time:              159.360 ms
+
+Average Size:
+Payload ciphertext size:           1848 bytes
+Search index size:                 410 bytes
+
+----------------------------------------------------
+Scheme:                            KR-PEKS
+Dataset size:                      1000
+Authorised identities:             10
+----------------------------------------------------
+Successful runs:                   100 / 100
+Authenticated login passed:        100 / 100
+Unauthenticated user rejected:     100 / 100
+Correct keyword search passed:     100 / 100
+Wrong keyword rejected:            100 / 100
+Wrong scheme rejected:             100 / 100
+Authorised decryption passed:      100 / 100
+Unauthorised decryption failed:    100 / 100
+
+Average Performance:
+Setup time:                        26.985 ms
+Registration/KeyGen time:          12.884 ms
+Login/Auth time:                   4.296 ms
+KR-IBE encryption time:            5.261 ms
+Search index generation time:      2290.287 ms
+Search/Trapdoor/Test time:         147.340 ms
+KR-IBE decryption time:            0.669 ms
+Total upload time:                 2295.547 ms
+Total retrieval time:              152.304 ms
+
+Average Size:
+Payload ciphertext size:           1848 bytes
+Search index size:                 410 bytes
+
+----------------------------------------------------
+Scheme:                            KR-PEKS
+Dataset size:                      1000
+Authorised identities:             20
+----------------------------------------------------
+Successful runs:                   100 / 100
+Authenticated login passed:        100 / 100
+Unauthenticated user rejected:     100 / 100
+Correct keyword search passed:     100 / 100
+Wrong keyword rejected:            100 / 100
+Wrong scheme rejected:             100 / 100
+Authorised decryption passed:      100 / 100
+Unauthorised decryption failed:    100 / 100
+
+Average Performance:
+Setup time:                        27.640 ms
+Registration/KeyGen time:          26.047 ms
+Login/Auth time:                   4.545 ms
+KR-IBE encryption time:            5.341 ms
+Search index generation time:      2342.961 ms
+Search/Trapdoor/Test time:         152.547 ms
+KR-IBE decryption time:            0.652 ms
+Total upload time:                 2348.302 ms
+Total retrieval time:              157.743 ms
+
+Average Size:
+Payload ciphertext size:           1848 bytes
+Search index size:                 410 bytes
+
+----------------------------------------------------
+Scheme:                            KR-PEKS
+Dataset size:                      5000
+Authorised identities:             1
+----------------------------------------------------
+Successful runs:                   100 / 100
+Authenticated login passed:        100 / 100
+Unauthenticated user rejected:     100 / 100
+Correct keyword search passed:     100 / 100
+Wrong keyword rejected:            100 / 100
+Wrong scheme rejected:             100 / 100
+Authorised decryption passed:      100 / 100
+Unauthorised decryption failed:    100 / 100
+
+Average Performance:
+Setup time:                        27.419 ms
+Registration/KeyGen time:          2.388 ms
+Login/Auth time:                   4.318 ms
+KR-IBE encryption time:            5.466 ms
+Search index generation time:      11642.100 ms
+Search/Trapdoor/Test time:         751.932 ms
+KR-IBE decryption time:            0.654 ms
+Total upload time:                 11647.566 ms
+Total retrieval time:              756.904 ms
+
+Average Size:
+Payload ciphertext size:           1848 bytes
+Search index size:                 410 bytes
+
+----------------------------------------------------
+Scheme:                            KR-PEKS
+Dataset size:                      5000
+Authorised identities:             5
+----------------------------------------------------
+Successful runs:                   100 / 100
+Authenticated login passed:        100 / 100
+Unauthenticated user rejected:     100 / 100
+Correct keyword search passed:     100 / 100
+Wrong keyword rejected:            100 / 100
+Wrong scheme rejected:             100 / 100
+Authorised decryption passed:      100 / 100
+Unauthorised decryption failed:    100 / 100
+
+Average Performance:
+Setup time:                        27.605 ms
+Registration/KeyGen time:          7.433 ms
+Login/Auth time:                   4.378 ms
+KR-IBE encryption time:            5.391 ms
+Search index generation time:      11624.004 ms
+Search/Trapdoor/Test time:         747.649 ms
+KR-IBE decryption time:            0.681 ms
+Total upload time:                 11629.395 ms
+Total retrieval time:              752.708 ms
+
+Average Size:
+Payload ciphertext size:           1848 bytes
+Search index size:                 410 bytes
+
+----------------------------------------------------
+Scheme:                            KR-PEKS
+Dataset size:                      5000
+Authorised identities:             10
+----------------------------------------------------
+Successful runs:                   100 / 100
+Authenticated login passed:        100 / 100
+Unauthenticated user rejected:     100 / 100
+Correct keyword search passed:     100 / 100
+Wrong keyword rejected:            100 / 100
+Wrong scheme rejected:             100 / 100
+Authorised decryption passed:      100 / 100
+Unauthorised decryption failed:    100 / 100
+
+Average Performance:
+Setup time:                        27.258 ms
+Registration/KeyGen time:          13.276 ms
+Login/Auth time:                   4.346 ms
+KR-IBE encryption time:            5.448 ms
+Search index generation time:      11624.227 ms
+Search/Trapdoor/Test time:         751.076 ms
+KR-IBE decryption time:            0.662 ms
+Total upload time:                 11629.675 ms
+Total retrieval time:              756.084 ms
+
+Average Size:
+Payload ciphertext size:           1848 bytes
+Search index size:                 410 bytes
+
+----------------------------------------------------
+Scheme:                            KR-PEKS
+Dataset size:                      5000
+Authorised identities:             20
+----------------------------------------------------
+Successful runs:                   100 / 100
+Authenticated login passed:        100 / 100
+Unauthenticated user rejected:     100 / 100
+Correct keyword search passed:     100 / 100
+Wrong keyword rejected:            100 / 100
+Wrong scheme rejected:             100 / 100
+Authorised decryption passed:      100 / 100
+Unauthorised decryption failed:    100 / 100
+
+Average Performance:
+Setup time:                        27.524 ms
+Registration/KeyGen time:          25.511 ms
+Login/Auth time:                   4.448 ms
+KR-IBE encryption time:            5.242 ms
+Search index generation time:      11594.485 ms
+Search/Trapdoor/Test time:         748.757 ms
+KR-IBE decryption time:            0.671 ms
+Total upload time:                 11599.727 ms
+Total retrieval time:              753.876 ms
+
+Average Size:
+Payload ciphertext size:           1848 bytes
+Search index size:                 410 bytes
+
+----------------------------------------------------
+Scheme:                            KR-PEKS
+Dataset size:                      10000
+Authorised identities:             1
+----------------------------------------------------
+Successful runs:                   100 / 100
+Authenticated login passed:        100 / 100
+Unauthenticated user rejected:     100 / 100
+Correct keyword search passed:     100 / 100
+Wrong keyword rejected:            100 / 100
+Wrong scheme rejected:             100 / 100
+Authorised decryption passed:      100 / 100
+Unauthorised decryption failed:    100 / 100
+
+Average Performance:
+Setup time:                        27.928 ms
+Registration/KeyGen time:          2.408 ms
+Login/Auth time:                   4.268 ms
+KR-IBE encryption time:            5.446 ms
+Search index generation time:      23239.836 ms
+Search/Trapdoor/Test time:         1505.199 ms
+KR-IBE decryption time:            0.668 ms
+Total upload time:                 23245.282 ms
+Total retrieval time:              1510.136 ms
+
+Average Size:
+Payload ciphertext size:           1848 bytes
+Search index size:                 410 bytes
+
+----------------------------------------------------
+Scheme:                            KR-PEKS
+Dataset size:                      10000
+Authorised identities:             5
+----------------------------------------------------
+Successful runs:                   100 / 100
+Authenticated login passed:        100 / 100
+Unauthenticated user rejected:     100 / 100
+Correct keyword search passed:     100 / 100
+Wrong keyword rejected:            100 / 100
+Wrong scheme rejected:             100 / 100
+Authorised decryption passed:      100 / 100
+Unauthorised decryption failed:    100 / 100
+
+Average Performance:
+Setup time:                        27.602 ms
+Registration/KeyGen time:          7.124 ms
+Login/Auth time:                   4.355 ms
+KR-IBE encryption time:            5.326 ms
+Search index generation time:      23169.828 ms
+Search/Trapdoor/Test time:         1503.480 ms
+KR-IBE decryption time:            0.652 ms
+Total upload time:                 23175.154 ms
+Total retrieval time:              1508.487 ms
+
+Average Size:
+Payload ciphertext size:           1848 bytes
+Search index size:                 410 bytes
+
+----------------------------------------------------
+Scheme:                            KR-PEKS
+Dataset size:                      10000
+Authorised identities:             10
+----------------------------------------------------
+Successful runs:                   100 / 100
+Authenticated login passed:        100 / 100
+Unauthenticated user rejected:     100 / 100
+Correct keyword search passed:     100 / 100
+Wrong keyword rejected:            100 / 100
+Wrong scheme rejected:             100 / 100
+Authorised decryption passed:      100 / 100
+Unauthorised decryption failed:    100 / 100
+
+Average Performance:
+Setup time:                        27.775 ms
+Registration/KeyGen time:          13.290 ms
+Login/Auth time:                   4.272 ms
+KR-IBE encryption time:            5.231 ms
+Search index generation time:      23141.199 ms
+Search/Trapdoor/Test time:         1499.703 ms
+KR-IBE decryption time:            0.666 ms
+Total upload time:                 23146.431 ms
+Total retrieval time:              1504.642 ms
+
+Average Size:
+Payload ciphertext size:           1848 bytes
+Search index size:                 410 bytes
+
+----------------------------------------------------
+Scheme:                            KR-PEKS
+Dataset size:                      10000
+Authorised identities:             20
+----------------------------------------------------
+Successful runs:                   100 / 100
+Authenticated login passed:        100 / 100
+Unauthenticated user rejected:     100 / 100
+Correct keyword search passed:     100 / 100
+Wrong keyword rejected:            100 / 100
+Wrong scheme rejected:             100 / 100
+Authorised decryption passed:      100 / 100
+Unauthorised decryption failed:    100 / 100
+
+Average Performance:
+Setup time:                        27.780 ms
+Registration/KeyGen time:          26.276 ms
+Login/Auth time:                   4.554 ms
+KR-IBE encryption time:            5.358 ms
+Search index generation time:      23254.424 ms
+Search/Trapdoor/Test time:         1502.632 ms
+KR-IBE decryption time:            0.682 ms
+Total upload time:                 23259.782 ms
+Total retrieval time:              1507.868 ms
+
+Average Size:
+Payload ciphertext size:           1848 bytes
+Search index size:                 410 bytes
+
+----------------------------------------------------
+Scheme:                            KR-PAEKS
+Dataset size:                      100
+Authorised identities:             1
+----------------------------------------------------
+Successful runs:                   0 / 100
+Authenticated login passed:        100 / 100
+Unauthenticated user rejected:     100 / 100
+Correct keyword search passed:     100 / 100
+Wrong keyword rejected:            0 / 100
+Wrong scheme rejected:             100 / 100
+Authorised decryption passed:      100 / 100
+Unauthorised decryption failed:    100 / 100
+
+Average Performance:
+Setup time:                        26.749 ms
+Registration/KeyGen time:          2.371 ms
+Login/Auth time:                   4.287 ms
+KR-IBE encryption time:            5.314 ms
+Search index generation time:      412.058 ms
+Search/Trapdoor/Test time:         426.128 ms
+KR-IBE decryption time:            0.639 ms
+Total upload time:                 417.372 ms
+Total retrieval time:              431.053 ms
+
+Average Size:
+Payload ciphertext size:           1848 bytes
+Search index size:                 341 bytes
+
+----------------------------------------------------
+Scheme:                            KR-PAEKS
+Dataset size:                      100
+Authorised identities:             5
+----------------------------------------------------
+Successful runs:                   0 / 100
+Authenticated login passed:        100 / 100
+Unauthenticated user rejected:     100 / 100
+Correct keyword search passed:     100 / 100
+Wrong keyword rejected:            0 / 100
+Wrong scheme rejected:             100 / 100
+Authorised decryption passed:      100 / 100
+Unauthorised decryption failed:    100 / 100
+
+Average Performance:
+Setup time:                        27.570 ms
+Registration/KeyGen time:          7.286 ms
+Login/Auth time:                   4.417 ms
+KR-IBE encryption time:            5.312 ms
+Search index generation time:      430.388 ms
+Search/Trapdoor/Test time:         443.882 ms
+KR-IBE decryption time:            0.689 ms
+Total upload time:                 435.700 ms
+Total retrieval time:              448.988 ms
+
+Average Size:
+Payload ciphertext size:           1848 bytes
+Search index size:                 341 bytes
+
+----------------------------------------------------
+Scheme:                            KR-PAEKS
+Dataset size:                      100
+Authorised identities:             10
+----------------------------------------------------
+Successful runs:                   0 / 100
+Authenticated login passed:        100 / 100
+Unauthenticated user rejected:     100 / 100
+Correct keyword search passed:     100 / 100
+Wrong keyword rejected:            0 / 100
+Wrong scheme rejected:             100 / 100
+Authorised decryption passed:      100 / 100
+Unauthorised decryption failed:    100 / 100
+
+Average Performance:
+Setup time:                        27.578 ms
+Registration/KeyGen time:          13.358 ms
+Login/Auth time:                   4.346 ms
+KR-IBE encryption time:            5.495 ms
+Search index generation time:      435.048 ms
+Search/Trapdoor/Test time:         444.081 ms
+KR-IBE decryption time:            0.710 ms
+Total upload time:                 440.543 ms
+Total retrieval time:              449.137 ms
+
+Average Size:
+Payload ciphertext size:           1848 bytes
+Search index size:                 341 bytes
+
+----------------------------------------------------
+Scheme:                            KR-PAEKS
+Dataset size:                      100
+Authorised identities:             20
+----------------------------------------------------
+Successful runs:                   0 / 100
+Authenticated login passed:        100 / 100
+Unauthenticated user rejected:     100 / 100
+Correct keyword search passed:     100 / 100
+Wrong keyword rejected:            0 / 100
+Wrong scheme rejected:             100 / 100
+Authorised decryption passed:      100 / 100
+Unauthorised decryption failed:    100 / 100
+
+Average Performance:
+Setup time:                        27.568 ms
+Registration/KeyGen time:          25.675 ms
+Login/Auth time:                   4.446 ms
+KR-IBE encryption time:            5.417 ms
+Search index generation time:      433.823 ms
+Search/Trapdoor/Test time:         446.187 ms
+KR-IBE decryption time:            0.670 ms
+Total upload time:                 439.240 ms
+Total retrieval time:              451.303 ms
+
+Average Size:
+Payload ciphertext size:           1848 bytes
+Search index size:                 341 bytes
+
+----------------------------------------------------
+Scheme:                            KR-PAEKS
+Dataset size:                      500
+Authorised identities:             1
+----------------------------------------------------
+Successful runs:                   0 / 100
+Authenticated login passed:        100 / 100
+Unauthenticated user rejected:     100 / 100
+Correct keyword search passed:     100 / 100
+Wrong keyword rejected:            0 / 100
+Wrong scheme rejected:             100 / 100
+Authorised decryption passed:      100 / 100
+Unauthorised decryption failed:    100 / 100
+
+Average Performance:
+Setup time:                        28.494 ms
+Registration/KeyGen time:          2.396 ms
+Login/Auth time:                   4.274 ms
+KR-IBE encryption time:            5.488 ms
+Search index generation time:      2155.538 ms
+Search/Trapdoor/Test time:         2218.740 ms
+KR-IBE decryption time:            0.671 ms
+Total upload time:                 2161.025 ms
+Total retrieval time:              2223.685 ms
+
+Average Size:
+Payload ciphertext size:           1848 bytes
+Search index size:                 341 bytes
+
+----------------------------------------------------
+Scheme:                            KR-PAEKS
+Dataset size:                      500
+Authorised identities:             5
+----------------------------------------------------
+Successful runs:                   0 / 100
+Authenticated login passed:        100 / 100
+Unauthenticated user rejected:     100 / 100
+Correct keyword search passed:     100 / 100
+Wrong keyword rejected:            0 / 100
+Wrong scheme rejected:             100 / 100
+Authorised decryption passed:      100 / 100
+Unauthorised decryption failed:    100 / 100
+
+Average Performance:
+Setup time:                        27.482 ms
+Registration/KeyGen time:          7.220 ms
+Login/Auth time:                   4.398 ms
+KR-IBE encryption time:            5.574 ms
+Search index generation time:      2163.800 ms
+Search/Trapdoor/Test time:         2232.039 ms
+KR-IBE decryption time:            0.676 ms
+Total upload time:                 2169.374 ms
+Total retrieval time:              2237.113 ms
+
+Average Size:
+Payload ciphertext size:           1848 bytes
+Search index size:                 341 bytes
+
+----------------------------------------------------
+Scheme:                            KR-PAEKS
+Dataset size:                      500
+Authorised identities:             10
+----------------------------------------------------
+Successful runs:                   0 / 100
+Authenticated login passed:        100 / 100
+Unauthenticated user rejected:     100 / 100
+Correct keyword search passed:     100 / 100
+Wrong keyword rejected:            0 / 100
+Wrong scheme rejected:             100 / 100
+Authorised decryption passed:      100 / 100
+Unauthorised decryption failed:    100 / 100
+
+Average Performance:
+Setup time:                        27.632 ms
+Registration/KeyGen time:          13.300 ms
+Login/Auth time:                   4.291 ms
+KR-IBE encryption time:            5.443 ms
+Search index generation time:      2155.196 ms
+Search/Trapdoor/Test time:         2217.481 ms
+KR-IBE decryption time:            0.690 ms
+Total upload time:                 2160.639 ms
+Total retrieval time:              2222.462 ms
+
+Average Size:
+Payload ciphertext size:           1848 bytes
+Search index size:                 341 bytes
+
+----------------------------------------------------
+Scheme:                            KR-PAEKS
+Dataset size:                      500
+Authorised identities:             20
+----------------------------------------------------
+Successful runs:                   0 / 100
+Authenticated login passed:        100 / 100
+Unauthenticated user rejected:     100 / 100
+Correct keyword search passed:     100 / 100
+Wrong keyword rejected:            0 / 100
+Wrong scheme rejected:             100 / 100
+Authorised decryption passed:      100 / 100
+Unauthorised decryption failed:    100 / 100
+
+Average Performance:
+Setup time:                        27.177 ms
+Registration/KeyGen time:          25.645 ms
+Login/Auth time:                   4.423 ms
+KR-IBE encryption time:            5.578 ms
+Search index generation time:      2153.882 ms
+Search/Trapdoor/Test time:         2215.165 ms
+KR-IBE decryption time:            0.662 ms
+Total upload time:                 2159.460 ms
+Total retrieval time:              2220.250 ms
+
+Average Size:
+Payload ciphertext size:           1848 bytes
+Search index size:                 341 bytes
+
+----------------------------------------------------
+Scheme:                            KR-PAEKS
+Dataset size:                      1000
+Authorised identities:             1
+----------------------------------------------------
+Successful runs:                   0 / 100
+Authenticated login passed:        100 / 100
+Unauthenticated user rejected:     100 / 100
+Correct keyword search passed:     100 / 100
+Wrong keyword rejected:            0 / 100
+Wrong scheme rejected:             100 / 100
+Authorised decryption passed:      100 / 100
+Unauthorised decryption failed:    100 / 100
+
+Average Performance:
+Setup time:                        27.471 ms
+Registration/KeyGen time:          2.428 ms
+Login/Auth time:                   4.333 ms
+KR-IBE encryption time:            5.368 ms
+Search index generation time:      4308.298 ms
+Search/Trapdoor/Test time:         4429.472 ms
+KR-IBE decryption time:            0.658 ms
+Total upload time:                 4313.666 ms
+Total retrieval time:              4434.463 ms
+
+Average Size:
+Payload ciphertext size:           1848 bytes
+Search index size:                 341 bytes
+
+----------------------------------------------------
+Scheme:                            KR-PAEKS
+Dataset size:                      1000
+Authorised identities:             5
+----------------------------------------------------
+Successful runs:                   0 / 100
+Authenticated login passed:        100 / 100
+Unauthenticated user rejected:     100 / 100
+Correct keyword search passed:     100 / 100
+Wrong keyword rejected:            0 / 100
+Wrong scheme rejected:             100 / 100
+Authorised decryption passed:      100 / 100
+Unauthorised decryption failed:    100 / 100
+
+Average Performance:
+Setup time:                        27.486 ms
+Registration/KeyGen time:          7.453 ms
+Login/Auth time:                   4.441 ms
+KR-IBE encryption time:            5.265 ms
+Search index generation time:      4313.795 ms
+Search/Trapdoor/Test time:         4433.801 ms
+KR-IBE decryption time:            0.658 ms
+Total upload time:                 4319.060 ms
+Total retrieval time:              4438.900 ms
+
+Average Size:
+Payload ciphertext size:           1848 bytes
+Search index size:                 341 bytes
+
+----------------------------------------------------
+Scheme:                            KR-PAEKS
+Dataset size:                      1000
+Authorised identities:             10
+----------------------------------------------------
+Successful runs:                   0 / 100
+Authenticated login passed:        100 / 100
+Unauthenticated user rejected:     100 / 100
+Correct keyword search passed:     100 / 100
+Wrong keyword rejected:            0 / 100
+Wrong scheme rejected:             100 / 100
+Authorised decryption passed:      100 / 100
+Unauthorised decryption failed:    100 / 100
+
+Average Performance:
+Setup time:                        27.042 ms
+Registration/KeyGen time:          13.468 ms
+Login/Auth time:                   4.509 ms
+KR-IBE encryption time:            5.406 ms
+Search index generation time:      4310.144 ms
+Search/Trapdoor/Test time:         4433.624 ms
+KR-IBE decryption time:            0.675 ms
+Total upload time:                 4315.549 ms
+Total retrieval time:              4438.808 ms
+
+Average Size:
+Payload ciphertext size:           1848 bytes
+Search index size:                 341 bytes
+
+----------------------------------------------------
+Scheme:                            KR-PAEKS
+Dataset size:                      1000
+Authorised identities:             20
+----------------------------------------------------
+Successful runs:                   0 / 100
+Authenticated login passed:        100 / 100
+Unauthenticated user rejected:     100 / 100
+Correct keyword search passed:     100 / 100
+Wrong keyword rejected:            0 / 100
+Wrong scheme rejected:             100 / 100
+Authorised decryption passed:      100 / 100
+Unauthorised decryption failed:    100 / 100
+
+Average Performance:
+Setup time:                        27.643 ms
+Registration/KeyGen time:          25.896 ms
+Login/Auth time:                   4.448 ms
+KR-IBE encryption time:            5.417 ms
+Search index generation time:      4311.804 ms
+Search/Trapdoor/Test time:         4429.470 ms
+KR-IBE decryption time:            0.654 ms
+Total upload time:                 4317.222 ms
+Total retrieval time:              4434.572 ms
+
+Average Size:
+Payload ciphertext size:           1848 bytes
+Search index size:                 341 bytes
+
+----------------------------------------------------
+Scheme:                            KR-PAEKS
+Dataset size:                      5000
+Authorised identities:             1
+----------------------------------------------------
+Successful runs:                   0 / 100
+Authenticated login passed:        100 / 100
+Unauthenticated user rejected:     100 / 100
+Correct keyword search passed:     100 / 100
+Wrong keyword rejected:            0 / 100
+Wrong scheme rejected:             100 / 100
+Authorised decryption passed:      100 / 100
+Unauthorised decryption failed:    100 / 100
+
+Average Performance:
+Setup time:                        27.696 ms
+Registration/KeyGen time:          2.394 ms
+Login/Auth time:                   4.449 ms
+KR-IBE encryption time:            5.363 ms
+Search index generation time:      21627.982 ms
+Search/Trapdoor/Test time:         22339.097 ms
+KR-IBE decryption time:            0.706 ms
+Total upload time:                 21633.345 ms
+Total retrieval time:              22344.252 ms
+
+Average Size:
+Payload ciphertext size:           1848 bytes
+Search index size:                 341 bytes
+
+----------------------------------------------------
+Scheme:                            KR-PAEKS
+Dataset size:                      5000
+Authorised identities:             5
+----------------------------------------------------
+Successful runs:                   0 / 100
+Authenticated login passed:        100 / 100
+Unauthenticated user rejected:     100 / 100
+Correct keyword search passed:     100 / 100
+Wrong keyword rejected:            0 / 100
+Wrong scheme rejected:             100 / 100
+Authorised decryption passed:      100 / 100
+Unauthorised decryption failed:    100 / 100
+
+Average Performance:
+Setup time:                        28.000 ms
+Registration/KeyGen time:          7.240 ms
+Login/Auth time:                   4.532 ms
+KR-IBE encryption time:            5.375 ms
+Search index generation time:      21547.564 ms
+Search/Trapdoor/Test time:         22182.641 ms
+KR-IBE decryption time:            0.669 ms
+Total upload time:                 21552.940 ms
+Total retrieval time:              22187.842 ms
+
+Average Size:
+Payload ciphertext size:           1848 bytes
+Search index size:                 341 bytes
+
+----------------------------------------------------
+Scheme:                            KR-PAEKS
+Dataset size:                      5000
+Authorised identities:             10
+----------------------------------------------------
+Successful runs:                   0 / 100
+Authenticated login passed:        100 / 100
+Unauthenticated user rejected:     100 / 100
+Correct keyword search passed:     100 / 100
+Wrong keyword rejected:            0 / 100
+Wrong scheme rejected:             100 / 100
+Authorised decryption passed:      100 / 100
+Unauthorised decryption failed:    100 / 100
+
+Average Performance:
+Setup time:                        27.494 ms
+Registration/KeyGen time:          13.644 ms
+Login/Auth time:                   4.303 ms
+KR-IBE encryption time:            5.467 ms
+Search index generation time:      21481.276 ms
+Search/Trapdoor/Test time:         22207.446 ms
+KR-IBE decryption time:            0.674 ms
+Total upload time:                 21486.743 ms
+Total retrieval time:              22212.423 ms
+
+Average Size:
+Payload ciphertext size:           1848 bytes
+Search index size:                 341 bytes
+
+----------------------------------------------------
+Scheme:                            KR-PAEKS
+Dataset size:                      5000
+Authorised identities:             20
+----------------------------------------------------
+Successful runs:                   0 / 100
+Authenticated login passed:        100 / 100
+Unauthenticated user rejected:     100 / 100
+Correct keyword search passed:     100 / 100
+Wrong keyword rejected:            0 / 100
+Wrong scheme rejected:             100 / 100
+Authorised decryption passed:      100 / 100
+Unauthorised decryption failed:    100 / 100
+
+Average Performance:
+Setup time:                        27.839 ms
+Registration/KeyGen time:          26.111 ms
+Login/Auth time:                   4.472 ms
+KR-IBE encryption time:            5.502 ms
+Search index generation time:      21577.633 ms
+Search/Trapdoor/Test time:         22299.028 ms
+KR-IBE decryption time:            0.662 ms
+Total upload time:                 21583.134 ms
+Total retrieval time:              22304.162 ms
+
+Average Size:
+Payload ciphertext size:           1848 bytes
+Search index size:                 341 bytes
+
+----------------------------------------------------
+Scheme:                            KR-PAEKS
+Dataset size:                      10000
+Authorised identities:             1
+----------------------------------------------------
+Successful runs:                   0 / 100
+Authenticated login passed:        100 / 100
+Unauthenticated user rejected:     100 / 100
+Correct keyword search passed:     100 / 100
+Wrong keyword rejected:            0 / 100
+Wrong scheme rejected:             100 / 100
+Authorised decryption passed:      100 / 100
+Unauthorised decryption failed:    100 / 100
+
+Average Performance:
+Setup time:                        28.112 ms
+Registration/KeyGen time:          2.466 ms
+Login/Auth time:                   4.515 ms
+KR-IBE encryption time:            5.402 ms
+Search index generation time:      43033.091 ms
+Search/Trapdoor/Test time:         44485.830 ms
+KR-IBE decryption time:            0.698 ms
+Total upload time:                 43038.493 ms
+Total retrieval time:              44491.043 ms
+
+Average Size:
+Payload ciphertext size:           1848 bytes
+Search index size:                 341 bytes
+
+----------------------------------------------------
+Scheme:                            KR-PAEKS
+Dataset size:                      10000
+Authorised identities:             5
+----------------------------------------------------
+Successful runs:                   0 / 100
+Authenticated login passed:        100 / 100
+Unauthenticated user rejected:     100 / 100
+Correct keyword search passed:     100 / 100
+Wrong keyword rejected:            0 / 100
+Wrong scheme rejected:             100 / 100
+Authorised decryption passed:      100 / 100
+Unauthorised decryption failed:    100 / 100
+
+Average Performance:
+Setup time:                        28.151 ms
+Registration/KeyGen time:          7.234 ms
+Login/Auth time:                   4.307 ms
+KR-IBE encryption time:            5.415 ms
+Search index generation time:      43023.137 ms
+Search/Trapdoor/Test time:         44590.866 ms
+KR-IBE decryption time:            0.682 ms
+Total upload time:                 43028.551 ms
+Total retrieval time:              44595.855 ms
+
+Average Size:
+Payload ciphertext size:           1848 bytes
+Search index size:                 341 bytes
+
+----------------------------------------------------
+Scheme:                            KR-PAEKS
+Dataset size:                      10000
+Authorised identities:             10
+----------------------------------------------------
+Successful runs:                   0 / 100
+Authenticated login passed:        100 / 100
+Unauthenticated user rejected:     100 / 100
+Correct keyword search passed:     100 / 100
+Wrong keyword rejected:            0 / 100
+Wrong scheme rejected:             100 / 100
+Authorised decryption passed:      100 / 100
+Unauthorised decryption failed:    100 / 100
+
+Average Performance:
+Setup time:                        27.756 ms
+Registration/KeyGen time:          13.642 ms
+Login/Auth time:                   4.417 ms
+KR-IBE encryption time:            5.366 ms
+Search index generation time:      43035.325 ms
+Search/Trapdoor/Test time:         44551.009 ms
+KR-IBE decryption time:            0.704 ms
+Total upload time:                 43040.691 ms
+Total retrieval time:              44556.131 ms
+
+Average Size:
+Payload ciphertext size:           1848 bytes
+Search index size:                 341 bytes
+
+----------------------------------------------------
+Scheme:                            KR-PAEKS
+Dataset size:                      10000
+Authorised identities:             20
+----------------------------------------------------
+Successful runs:                   0 / 100
+Authenticated login passed:        100 / 100
+Unauthenticated user rejected:     100 / 100
+Correct keyword search passed:     100 / 100
+Wrong keyword rejected:            0 / 100
+Wrong scheme rejected:             100 / 100
+Authorised decryption passed:      100 / 100
+Unauthorised decryption failed:    100 / 100
+
+Average Performance:
+Setup time:                        27.748 ms
+Registration/KeyGen time:          25.637 ms
+Login/Auth time:                   4.530 ms
+KR-IBE encryption time:            5.323 ms
+Search index generation time:      42963.434 ms
+Search/Trapdoor/Test time:         44221.976 ms
+KR-IBE decryption time:            0.672 ms
+Total upload time:                 42968.757 ms
+Total retrieval time:              44227.178 ms
+
+Average Size:
+Payload ciphertext size:           1848 bytes
+Search index size:                 341 bytes
+
+Summary Table: KR-PEKS
+dataset_size,authorised_users,setup_ms,registration_ms,login_ms,encrypt_ms,index_ms,search_ms,decrypt_ms,upload_ms,retrieval_ms
+100,1,24.945,2.190,3.818,4.891,210.730,14.103,0.580,215.621,18.501
+100,5,25.634,6.777,4.069,5.085,220.429,14.555,0.625,225.514,19.249
+100,10,27.238,13.378,4.395,5.314,234.398,15.456,0.662,239.712,20.512
+100,20,27.320,25.267,4.420,5.275,232.241,15.437,0.664,237.516,20.521
+500,1,27.476,2.386,4.382,5.348,1170.785,76.030,0.642,1176.133,81.054
+500,5,26.055,6.969,4.064,5.157,1124.221,72.818,0.626,1129.378,77.508
+500,10,27.744,13.401,4.433,5.394,1167.376,75.174,0.656,1172.769,80.263
+500,20,27.575,25.989,4.633,5.303,1172.918,76.205,0.659,1178.221,81.498
+1000,1,27.710,2.368,4.235,5.561,2348.028,151.142,0.686,2353.588,156.062
+1000,5,28.114,7.446,4.529,5.326,2341.535,154.160,0.671,2346.862,159.360
+1000,10,26.985,12.884,4.296,5.261,2290.287,147.340,0.669,2295.547,152.304
+1000,20,27.640,26.047,4.545,5.341,2342.961,152.547,0.652,2348.302,157.743
+5000,1,27.419,2.388,4.318,5.466,11642.100,751.932,0.654,11647.566,756.904
+5000,5,27.605,7.433,4.378,5.391,11624.004,747.649,0.681,11629.395,752.708
+5000,10,27.258,13.276,4.346,5.448,11624.227,751.076,0.662,11629.675,756.084
+5000,20,27.524,25.511,4.448,5.242,11594.485,748.757,0.671,11599.727,753.876
+10000,1,27.928,2.408,4.268,5.446,23239.836,1505.199,0.668,23245.282,1510.136
+10000,5,27.602,7.124,4.355,5.326,23169.828,1503.480,0.652,23175.154,1508.487
+10000,10,27.775,13.290,4.272,5.231,23141.199,1499.703,0.666,23146.431,1504.642
+10000,20,27.780,26.276,4.554,5.358,23254.424,1502.632,0.682,23259.782,1507.868
+
+Summary Table: KR-PAEKS
+dataset_size,authorised_users,setup_ms,registration_ms,login_ms,encrypt_ms,index_ms,search_ms,decrypt_ms,upload_ms,retrieval_ms
+100,1,26.749,2.371,4.287,5.314,412.058,426.128,0.639,417.372,431.053
+100,5,27.570,7.286,4.417,5.312,430.388,443.882,0.689,435.700,448.988
+100,10,27.578,13.358,4.346,5.495,435.048,444.081,0.710,440.543,449.137
+100,20,27.568,25.675,4.446,5.417,433.823,446.187,0.670,439.240,451.303
+500,1,28.494,2.396,4.274,5.488,2155.538,2218.740,0.671,2161.025,2223.685
+500,5,27.482,7.220,4.398,5.574,2163.800,2232.039,0.676,2169.374,2237.113
+500,10,27.632,13.300,4.291,5.443,2155.196,2217.481,0.690,2160.639,2222.462
+500,20,27.177,25.645,4.423,5.578,2153.882,2215.165,0.662,2159.460,2220.250
+1000,1,27.471,2.428,4.333,5.368,4308.298,4429.472,0.658,4313.666,4434.463
+1000,5,27.486,7.453,4.441,5.265,4313.795,4433.801,0.658,4319.060,4438.900
+1000,10,27.042,13.468,4.509,5.406,4310.144,4433.624,0.675,4315.549,4438.808
+1000,20,27.643,25.896,4.448,5.417,4311.804,4429.470,0.654,4317.222,4434.572
+5000,1,27.696,2.394,4.449,5.363,21627.982,22339.097,0.706,21633.345,22344.252
+5000,5,28.000,7.240,4.532,5.375,21547.564,22182.641,0.669,21552.940,22187.842
+5000,10,27.494,13.644,4.303,5.467,21481.276,22207.446,0.674,21486.743,22212.423
+5000,20,27.839,26.111,4.472,5.502,21577.633,22299.028,0.662,21583.134,22304.162
+10000,1,28.112,2.466,4.515,5.402,43033.091,44485.830,0.698,43038.493,44491.043
+10000,5,28.151,7.234,4.307,5.415,43023.137,44590.866,0.682,43028.551,44595.855
+10000,10,27.756,13.642,4.417,5.366,43035.325,44551.009,0.704,43040.691,44556.131
+10000,20,27.748,25.637,4.530,5.323,42963.434,44221.976,0.672,42968.757,44227.178
+
+Comparison Table: KR-PEKS vs KR-PAEKS
+dataset_size,authorised_users,peks_search_ms,paeks_search_ms,peks_index_ms,paeks_index_ms,peks_upload_ms,paeks_upload_ms
+100,1,14.103,426.128,210.730,412.058,215.621,417.372
+100,5,14.555,443.882,220.429,430.388,225.514,435.700
+100,10,15.456,444.081,234.398,435.048,239.712,440.543
+100,20,15.437,446.187,232.241,433.823,237.516,439.240
+500,1,76.030,2218.740,1170.785,2155.538,1176.133,2161.025
+500,5,72.818,2232.039,1124.221,2163.800,1129.378,2169.374
+500,10,75.174,2217.481,1167.376,2155.196,1172.769,2160.639
+500,20,76.205,2215.165,1172.918,2153.882,1178.221,2159.460
+1000,1,151.142,4429.472,2348.028,4308.298,2353.588,4313.666
+1000,5,154.160,4433.801,2341.535,4313.795,2346.862,4319.060
+1000,10,147.340,4433.624,2290.287,4310.144,2295.547,4315.549
+1000,20,152.547,4429.470,2342.961,4311.804,2348.302,4317.222
+5000,1,751.932,22339.097,11642.100,21627.982,11647.566,21633.345
+5000,5,747.649,22182.641,11624.004,21547.564,11629.395,21552.940
+5000,10,751.076,22207.446,11624.227,21481.276,11629.675,21486.743
+5000,20,748.757,22299.028,11594.485,21577.633,11599.727,21583.134
+10000,1,1505.199,44485.830,23239.836,43033.091,23245.282,43038.493
+10000,5,1503.480,44590.866,23169.828,43023.137,23175.154,43028.551
+10000,10,1499.703,44551.009,23141.199,43035.325,23146.431,43040.691
+10000,20,1502.632,44221.976,23254.424,42963.434,23259.782,42968.757

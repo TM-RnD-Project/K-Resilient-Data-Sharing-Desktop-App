@@ -53,5 +53,9 @@ Generated measurements are written to:
 - `benchmark_results/enron_peks_vs_paeks_comparison.csv`
 - `benchmark_results/correctness_results.csv`
 - `benchmark_results/run_metadata.txt`
+- `benchmark_results/old_vs_uniform_group_sampling_performance_comparison.csv`
+
+The immediately preceding result set is retained only under
+`benchmark_results/archive_pre_uniform_group_sampling/`.
 
 Thread-selection pilot evidence is kept separately in `benchmark_results/thread_scaling_pilot.csv` and `benchmark_results/thread_scaling_pilot_metadata.txt`. The repository also includes the available plotted benchmark outputs under `benchmark_results/figures/`.

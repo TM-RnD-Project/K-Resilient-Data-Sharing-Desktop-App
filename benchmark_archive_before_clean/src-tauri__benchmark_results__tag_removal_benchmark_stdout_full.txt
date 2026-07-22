@@ -1,0 +1,11 @@
+====================================================
+KR Data Sharing Evaluation over EnronMail Dataset
+====================================================
+
+Dataset source:                    ../dataset/EnronMailDB.sql
+Detected CPU threads:              32
+Using benchmark workers:           8
+Runs per setting:                  100
+Dataset sizes:                     [100, 500, 1000, 5000, 10000]
+Authorised identity counts:        [1, 5, 10, 20]
+Search schemes:                    [KR-PEKS, KR-PAEKS]
